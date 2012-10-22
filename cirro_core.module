@@ -418,6 +418,27 @@ function theme_cirro_core_multi_img_weight_form($variables) {
 
 }
 
+// Hook entity info
+function cirro_core_entity_info(){
+ 
+  // Init
+ 	$entities = array ();
+
+  //  Create_multi_image
+	$entities['multi_img'] = array(
+		'label' => t('Multiple Image'),
+		'controller class' => 'cirroCoreController',
+		'base table' => 'cirro_multi_img',
+		'fieldable' => FALSE,
+		'entity keys' => array(
+			'id' => 'id',
+		),
+		'static cache' => TRUE,
+	);
+	
+	return $entities;
+}
+
 /**
  * Multi-image load helper function
  */

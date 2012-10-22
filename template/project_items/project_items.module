@@ -117,16 +117,7 @@ function project_items_entity_info() {
 		'dashboard' => array('add', 'table'),
 	);
 
-	$entities['multi_img'] = array(
-		'label' => t('Multiple Image'),
-		'controller class' => 'cirroProjectController',
-		'base table' => 'cirro_multi_img',
-		'fieldable' => FALSE,
-		'entity keys' => array(
-			'id' => 'id',
-		),
-		'static cache' => TRUE,
-	);
+
 	
 	return $entities;
 

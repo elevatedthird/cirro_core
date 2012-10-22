@@ -8,7 +8,8 @@
 /**
  * Implements hook_schema().
  */
-function cirro_project_schema() {
+ 
+function cirro_core_schema() {
 	
 	// Init
 	$schema = array();
