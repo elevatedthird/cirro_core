@@ -1,6 +1,0 @@
-name = Cirro Core
-description = The core module for creating, updating and deleting Entities
-core = 7.x
-package = Cirro
-
-files[] = cirro_core_controller.inc
