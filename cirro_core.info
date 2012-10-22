@@ -1,0 +1,4 @@
+name = Cirro Core
+description = Creates entity CRUD GUI tools.
+core = 7.x
+package = Cirro

@@ -1,0 +1,344 @@
+<?php
+/**
+ * @file
+ *   cirroItemsController
+ *
+ */
+
+/**
+ * Controller class for Cirro items entities.
+ *
+ * This extends the DrupalDefaultEntityController class.
+ */
+class cirroItemsController extends DrupalDefaultEntityController {
+
+	/**
+	 * Gives access to the object.
+	 *
+	 * @return
+	 *   The object.
+	 */
+	public function showThis() {
+		return $this;
+	}
+
+	/**
+	 * Creates a new Cirro item entity.
+	 *
+	 * @param stdClass $new_obj
+	 *   The stdClass object containing the necessary properties to create the entity.
+	 */
+	public function create($new_obj) {
+
+		// Init
+		global $user;
+		$error = '';
+	  $type = $this->entityType;
+		$table = $this->entityInfo['base table'];
+		$id_name = $this->entityInfo['entity keys']['id'];
+		$schema = drupal_get_schema($table);
+
+		// If the argument is not an object
+		if (!is_object($new_obj)) {
+
+			// Create watchdog error and throw exception
+			$error = 'Entity Create: Argument must be object.';
+			watchdog('cirroItemsController', $error, array(), WATCHDOG_ERROR);
+			throw new Exception($error);
+
+		}
+
+		// Add the user id and created time properties to the new object
+		$new_obj->uid = $user->uid;
+		$new_obj->created = time();
+
+		// Insert the new object into the database
+		if (drupal_write_record($table, $new_obj) === FALSE) {
+
+			// Create watchdog error and throw exception
+			$error = 'Entity Create: write_record FAIL';
+			watchdog('cirroItemsController', $error, array(), WATCHDOG_ERROR);			
+			throw new Exception($error);
+
+		}
+
+		// Loop through fields looking for file fields
+		foreach ( $schema['fields'] as $field => $info ) {
+			
+			// Check for form array and managed_file #type
+			if (
+				isset($info['form']) &&
+				$info['form']['#type'] == 'managed_file' &&
+				$new_obj->$field !== 0
+			) {
+				
+				// Load file object
+				$file = file_load($new_obj->$field);
+				
+				// Create usage entry
+				file_usage_add($file, 'cirro_items', $type, $new_obj->$id_name);
+				
+				// Make file permanent
+				$file->status = FILE_STATUS_PERMANENT;
+				
+				// Save file
+				file_save($file);
+				
+			}
+
+		}
+
+		// Return the boolean response from the new object database insertion
+		return $new_obj;
+
+	} // create()
+
+	/**
+	 * Updates an existing entity in the database.
+	 *
+	 * @param stdClass $update_obj
+	 *   The stdClass object containing all of the data to be updated.
+	 * @param bool $log_disable
+	 *   (optional) TRUE to log individual changes. Defaults to FALSE.
+	 *   Skip logging for individual property changes.
+	 *
+	 * @return
+	 *   The created object with the primary key prooperty included, or FALSE if
+	 *   the process fails.
+	 */
+  public function update($update_obj, $log_disable = FALSE) {
+
+	  // Init
+	  $error = NULL;
+	  $id = NULL;
+	  $type = $this->entityType;
+		$table = $this->entityInfo['base table'];
+	  $id_name = $this->entityInfo['entity keys']['id'];
+	  $schema = drupal_get_schema($table);
+
+	  // Confirm update_obj
+	  if ( !is_object($update_obj) ) {
+
+			// Create watchdog error and throw exception
+			$error = 'Entity Update: Argument must be object.';
+			watchdog('cirroItemsController', $error, array(), WATCHDOG_ERROR);			
+			throw new Exception($error);
+
+	  }
+
+	  // If the update object's id name property is empty
+	  if ( empty($update_obj->$id_name) ) {
+
+			// Create watchdog error and throw exception
+			$error = 'Entity Update: Update object must include ID.';
+			watchdog('cirroItemsController', $error, array(), WATCHDOG_ERROR);			
+			throw new Exception($error);
+
+	  }
+	  
+	  // Load existing object
+	  $item = cirro_items_single_load($update_obj->$id_name, $type);
+
+		// Add the changed time property to the update object
+	  $update_obj->changed = time();
+
+	  // Write to db
+	  if ( drupal_write_record($table, $update_obj, $id_name) === FALSE ) {
+
+			// Create watchdog error and throw exception
+			$error = "Entity Update: Could not write to db. $type : $id";
+			watchdog('cirroItemsController', $error, array(), WATCHDOG_ERROR);			
+			throw new Exception($error);
+
+	  }
+	  
+		// Loop through fields looking for file fields
+		foreach ( $schema['fields'] as $field => $info ) {
+			
+			// Check for form array and managed_file #type
+			if (
+				isset($info['form']) &&
+				$info['form']['#type'] == 'managed_file'
+			) {
+				
+				// Check for mismatch values
+				if ( isset($update_obj->$field) && $item->$field !== $update_obj->$field ) {
+
+					// Check for old non 0 value
+					if ( $item->$field != 0 ) {
+
+						// Load old file
+						$old_file = file_load($item->$field);
+						
+						// Delete old file
+						file_delete($old_file, $force = TRUE);
+						
+					}
+					
+					// Check for new, non 0 value
+					if ( isset($update_obj->$field) && $update_obj->$field !== 0 ) {
+						
+						// Load file object
+						$file = file_load($update_obj->$field);
+						
+						// Create usage entry
+						file_usage_add($file, 'cirro_items', $type, $update_obj->$id_name);
+						
+						// Make file permanent
+						$file->status = FILE_STATUS_PERMANENT;
+						
+						// Save file
+						file_save($file);
+						
+						
+					}
+					
+				}
+				
+			}
+			
+		}
+
+	  // Return updated object
+	  return $update_obj;
+
+  } // update()
+
+  /**
+   * Deletes a single entity object and its children from the database.
+   *
+   * Simply passes to deleteMultiple().
+   *
+   * @param int $id
+   *   ID of object to be deleted.
+   *
+   * @return
+   *   The updated object with the primary key prooperty included, or FALSE if
+	 *   the process fails.
+   */
+  public function delete($id) {
+	  
+	  return $this->deleteMultiple(array($id));
+  }
+
+  /**
+   * Deletes mulitple entity objects and their children from the database.
+   *
+   * Run and Injection types require additional delete method for child deletion.
+   *
+   * @param array $ids
+   *   Array of object ids to be deleted.
+   *
+   * @return
+   *   TRUE/FALSE depending on success.
+   */
+  public function deleteMultiple($ids) {
+	  
+	  // Init
+	  $type = $this->entityType;
+		$table = $this->entityInfo['base table'];
+	  $id_name = $this->entityInfo['entity keys']['id'];
+	  $schema = drupal_get_schema($table);
+	  $file_fields = array();
+
+	  // Confirm arg is array
+	  if ( !is_array($ids) ) {
+		  
+			// Create watchdog error and throw exception
+			$error = "Entity Delete Mulitple: Arg must be array.";
+			watchdog('cirroItemsController', $error, array(), WATCHDOG_ERROR);			
+			throw new Exception($error);
+		  
+	  }
+
+	  // Check for multi_img
+	  if ( isset($schema['multi_img']) ) {
+		  
+		  // Query multi_img ids
+		  $query_string = "
+		  	SELECT id
+		  		FROM cirro_multi_img
+		  		WHERE parent_type = :type
+		  		AND parent_id IN ( :ids )
+		  ";
+		  
+		  $query = db_query($query_string, array(':type' => $type, ':ids' => $ids));
+		  
+		  $img_ids = $query->fetchCol();
+		  
+		  // Delete mutli_img items
+		  entity_get_controller('multi_img')->deleteMultiple($img_ids);
+		  
+	  }
+
+	  // Create file managed fields list
+	  foreach ( $schema['fields'] as $field => $info ) {
+		  
+		  // Check for form and file_managed #type
+		  if ( isset($info['form']) && $info['form']['#type'] === 'managed_file' ) {
+			  
+			  // Add field to file_fields array
+			  $file_fields[] = $field;
+			  
+		  }
+		  
+	  }
+	  
+	  // Loop through ids
+	  foreach ($ids as $id) {
+
+		  // Load item
+		  $item = cirro_items_single_load($id, $type);
+		  
+		  // Loop through file fields
+		  foreach ( $file_fields as $field ) {
+			  
+			  // Check for non 0 value
+			  if ( $item->$field != 0 ) {
+				  
+				  // Load file
+				  $file = file_load($item->$field);
+				  
+				  // Delete File
+				  file_delete($file, $force = TRUE);
+
+			  }
+			  
+		  }
+
+		  // Init transaction
+		  $transaction = db_transaction();
+
+		  // Try to delete
+		  try {
+			  
+			  // Delete entity from table
+				db_delete($table)
+					->condition($id_name, $id)
+					->execute();
+
+			  // Commit transaction by destroying object
+			  unset($transaction);
+			  
+      } catch (Exception $e) {
+		  
+			  // Rollback transaction
+			  $transaction->rollback();
+			  
+			  // Log error
+			  watchdog_exception('cirroItemsController', $e);
+			  
+			  // Pass up exception
+			  throw $e;
+		  }
+		  
+	  } // endforeach ids
+
+		// Clear caches
+		entity_get_controller($type)->resetCache();
+		
+		return TRUE;
+ 
+  } // deleteMultiple()
+
+} // ClaroItemsController

@@ -1,0 +1,6 @@
+name = Cirro Items
+description = The core module for creating, updating and deleting Entities
+core = 7.x
+package = Cirro
+
+files[] = cirro_items_controller.inc
