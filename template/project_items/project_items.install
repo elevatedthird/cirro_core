@@ -8,7 +8,7 @@
 /**
  * Implements hook_schema().
  */
-function cirro_project_schema() {
+function project_items_schema() {
 	
 	// Init
 	$schema = array();
