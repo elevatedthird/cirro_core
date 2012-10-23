@@ -189,11 +189,6 @@ function project_items_schema() {
 	// PRESS PAGE
 	$schema['cirro_press_page'] = array(
 		'description' => 'Base table for press_page',
-		'multi_img' => array(
-			'press_imgs' => array(
-				'label' => 'Press Images',
-			),
-		),
 		'fields' => array(
 
 			'id' => array(
@@ -310,17 +305,7 @@ function project_items_schema() {
 	// STORE ITEM
 	$schema['cirro_store_item'] = array(
 		'description' => 'Base table for store_item',
-		'multi_img' => array(
-			'additional_imgs' => array(
-				'label' => 'Additional Images',
-				'limit' => 6,
-			),
-			'celeb_imgs' => array(
-				'label' => 'Celebrity Images',
-			),
-		),
 		'fields' => array(
-			
 			'id' => array(
 				'type' => 'serial',
 				'unsigned' => TRUE,
@@ -443,11 +428,6 @@ function project_items_schema() {
 
 	$schema['cirro_collection'] = array(
 		'description' => 'Base table for collection',
-		'multi_img' => array(
-			'collection_imgs' => array(
-				'label' => 'Collection Images',
-			),
-		),
 		'fields' => array(
 			
 			'id' => array(
@@ -516,11 +496,6 @@ function project_items_schema() {
 	
 	$schema['cirro_blog'] = array(
 		'description' => 'Base table for blog',
-		'multi_img' => array(
-			'blog_imgs' => array(
-				'label' => 'Blog Images',
-			),
-		),
 		'fields' => array(
 			
 			'id' => array(

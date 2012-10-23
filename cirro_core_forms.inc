@@ -28,10 +28,10 @@ function cirro_core_entity_edit_page($type, $item, $action = NULL) {
 	";
 
 	// Check for multi_img in schema
-	if ( isset($schema['multi_img']) ) {
+	if ( isset($info['multi_img']) ) {
 
 		// Load multi_imgs array
-		$multi_imgs = $schema['multi_img'];
+		$multi_imgs = $info['multi_img'];
 
 		// Check for add
 		if ( $item === 'add' ) {

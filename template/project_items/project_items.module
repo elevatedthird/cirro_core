@@ -53,6 +53,11 @@ function project_items_entity_info() {
 		),
 		'static cache' => TRUE,
 		'dashboard' => array('primary'),
+		'multi_img' => array(
+			'press_imgs' => array(
+				'label' => 'Press Images',
+			),
+		),
 	);
 
 	// Contact Page
@@ -79,6 +84,15 @@ function project_items_entity_info() {
 		),
 		'static cache' => TRUE,
 		'dashboard' => array('add', 'table', 'weight'),
+		'multi_img' => array(
+			'additional_imgs' => array(
+				'label' => 'Additional Images',
+				'limit' => 6,
+			),
+			'celeb_imgs' => array(
+				'label' => 'Celebrity Images',
+			),
+		),
 	);
 	
 	$entities['collection'] = array(
@@ -91,6 +105,11 @@ function project_items_entity_info() {
 		),
 		'static cache' => TRUE,
 		'dashboard' => array('add', 'table', 'weight'),
+		'multi_img' => array(
+			'collection_imgs' => array(
+				'label' => 'Collection Images',
+			),
+		),
 	);
 	
 	$entities['blog'] = array(
@@ -103,6 +122,11 @@ function project_items_entity_info() {
 		),
 		'static cache' => TRUE,
 		'dashboard' => array('add', 'table', 'weight'),
+		'multi_img' => array(
+			'blog_imgs' => array(
+				'label' => 'Blog Images',
+			),
+		),
 	);
 		
 	$entities['location'] = array(
