@@ -215,15 +215,12 @@ function cirro_core_forms($form_id, $args) {
 	
 	// Loop through entities
 	foreach ( $entities as $mach_name => $info ) {
-		
-		// Get schema
-		$schema = drupal_get_schema($info['base table']);
-		
+				
 		// Check schema for multi img
-		if ( isset($schema['multi_img']) ) {
+		if ( isset($info['multi_img']) ) {
 
 			// Loop through multi img fields
-			foreach ( $schema['multi_img'] as $field_name => $field_data ) {
+			foreach ( $info['multi_img'] as $field_name => $field_data ) {
 				
 				// Add name to forms array
 				$forms["cirro_core_{$mach_name}_{$field_name}_multi_img_weights"] = array(
@@ -487,7 +484,7 @@ function cirro_core_entity_info(){
  *
  * Updates jQuery on all pages for the overlay plugin
  */
-	function cirro_project_js_alter(&$javascript) {
+	function cirro_core_js_alter(&$javascript) {
 	
 		global $theme;
 		// Conditional so it won't run on admin pages
@@ -514,7 +511,7 @@ function cirro_core_entity_info(){
  * @return
  *   Item object
  */
-	function cirro_project_single_load($id, $type) {
+	function cirro_core_single_load($id, $type) {
 		
 		// Load array from entity_load
 		$array = entity_load($type, array($id));

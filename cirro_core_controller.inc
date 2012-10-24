@@ -341,4 +341,4 @@ class cirroCoreController extends DrupalDefaultEntityController {
  
   } // deleteMultiple()
 
-} // ClaroCoreController
+} // CirroCoreController

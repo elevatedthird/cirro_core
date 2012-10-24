@@ -14,9 +14,8 @@
  * Page theme
  */
 
-/**
- * Implements hook_permission(). Defining user permissions for dashboard.
- */
+
+// Implements hook_permission(). Defining user permissions for dashboard.
 function cirro_dash_permission() {
   return array(
     'access dashboard' => array(
@@ -26,9 +25,7 @@ function cirro_dash_permission() {
   );
 }
 
-/**
- * Implements hook_menu() to create the dashboard page. 
- */
+//Implements hook_menu() to create the dashboard page. 
 function cirro_dash_menu() {
 
 	// Init
@@ -46,11 +43,7 @@ function cirro_dash_menu() {
   return $items;
 }
 
-/**
- * Implements hook_user_login
- *
- * Redirects user to their dashboard page once they have logged in.
- */
+//Implements hook_user_login. Redirects user to their dashboard page once they have logged in.
 function cirro_dash_user_login() {
 
   // Set $redirection to the run/dash
@@ -70,9 +63,7 @@ function cirro_dash_user_login() {
 
 }
 
-/**
- * Implements hook_theme() to style the page.
- */
+//Implements hook_theme() to style the page.
 function cirro_dash_theme() {
 
 	return array(
@@ -82,6 +73,11 @@ function cirro_dash_theme() {
 	);
 
 }
+
+
+
+
+
 
 /**
  * Admin Dashboard page build function().
@@ -132,8 +128,11 @@ function cirro_dash_build() {
 		}
 
 	}
-	
 
+/**
+ * Check for user permissions
+ */
+	
 	// Loop through the cirro entities to check for user permissions
 	foreach ( $cirro_entities as $mach_name => $info ) {
 
@@ -154,15 +153,19 @@ function cirro_dash_build() {
 
 		// If user has permission to edit content
 		if ( user_access("edit $mach_name") ) {
-
-			// If the entity has the 'primary' property in its dashboard array
-			if ( in_array('primary', $info['dashboard']) ) {
-	
-				// Append to the edit primary links
-				$label = $info['label'];
-				$link = l("Edit $label", "admin/dash/$mach_name/1/edit", array('html' => TRUE));
-				$edit_primary_links .= "<span><i class=\"icon-edit\"></i> <strong>$link</strong></span>";
-	
+			
+			// Don't show the edit buttons unless there is something to edit
+			if ( cirro_core_single_load(1, $mach_name)) {
+					
+					// If the entity has the 'primary' property in its dashboard array
+					if ( in_array('primary', $info['dashboard']) ) {
+			
+						// Append to the edit primary links
+						$label = $info['label'];
+						$link = l("Edit $label", "admin/dash/$mach_name/1/edit", array('html' => TRUE));
+						$edit_primary_links .= "<span><i class=\"icon-edit\"></i> <strong>$link</strong></span>";
+					}
+				
 			}
 	
 			// If the entity has the 'weight' property in its dashboard array
@@ -187,7 +190,10 @@ function cirro_dash_build() {
 
 	}
 	
-	// Build the table
+/**
+ * Get the info needed to build the table
+ */
+
 	// Filter form for table
 	$get_form = drupal_get_form('cirro_dash_filter', $types);
 	$filter_form = drupal_render($get_form);
@@ -255,8 +261,10 @@ function cirro_dash_build() {
 		$rows[] = array('data'=> array($title, $type, $author, $created, $updated));
 	}
 
-
-	// Create the html for the dashboard
+/**
+ * Create the html for the dashboard
+ */
+	
 	// Build link for editing account info
 	$user_link = l('Edit login info', "user/{$user->uid}/edit");
 	$edit_user = "<div id=\"edit-user-wrapper\" class=\"dash-section\"><h3>$user_link</h3></div>";
@@ -320,6 +328,10 @@ function cirro_dash_build() {
 
 	return $html;
 }
+
+
+
+
 
 /**
  * Add functions that allow for user-controlled capabilities
@@ -404,6 +416,11 @@ function cirro_dash_filter_submit($form, &$form_state) {
 	}
 
 }
+
+
+
+
+
 
 /**
  * Build weights page. Allows user to reorder content.
@@ -599,6 +616,10 @@ function theme_cirro_dash_weights_form($variables) {
 		'sticky' => '',
 		'empty' => 'No Items Found',
 	);
+
+
+
+
 
 	// Render table
 	$output .= theme_table($table_vars);
