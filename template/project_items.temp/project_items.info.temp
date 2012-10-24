@@ -1,0 +1,4 @@
+name = Project Items
+description = Define entity info
+core = 7.x
+package = Cirro
