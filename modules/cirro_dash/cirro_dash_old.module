@@ -7,15 +7,7 @@
 */
 
 /**
- * General page stuff
- * User permissions
- * Hook menu
- * User login
- * Page theme
- */
-
-/**
- * Implements hook_permission(). Defining user permissions for dashboard.
+ * Implements hook_permission().
  */
 function cirro_dash_permission() {
   return array(
@@ -27,7 +19,7 @@ function cirro_dash_permission() {
 }
 
 /**
- * Implements hook_menu() to create the dashboard page. 
+ * Implements hook_menu().
  */
 function cirro_dash_menu() {
 
@@ -43,13 +35,23 @@ function cirro_dash_menu() {
     'weight' => -20,
   );
 
+	// General node weights order page
+	$items['admin/dash/weights/%'] = array(
+		'title callback' => 'cirro_dash_weights_title',
+		'title arguments' => array(3),
+		'page callback' => 'cirro_dash_weights_page',
+		'page arguments' => array(3),
+		'access arguments' => array('access dashboard'),
+		'type' => MENU_NORMAL_ITEM,
+	);
+
   return $items;
 }
 
 /**
  * Implements hook_user_login
  *
- * Redirects user to their dashboard page once they have logged in.
+ * Redirects user to run/dash page once they have logged in.
  */
 function cirro_dash_user_login() {
 
@@ -71,7 +73,7 @@ function cirro_dash_user_login() {
 }
 
 /**
- * Implements hook_theme() to style the page.
+ * Implements hook_theme()
  */
 function cirro_dash_theme() {
 
@@ -85,12 +87,6 @@ function cirro_dash_theme() {
 
 /**
  * Admin Dashboard page build function().
- * Get all the entity info arrays
- * See if entity info arrays has a dashboard key
- * If a dashboard key exists add them to the cirro_entities array
- * Check cirro_entities against user permissions to admjust dashboard for user
- * Get the information from the database and build the table
- * Build the dashboard html
  */
 function cirro_dash_build() {
 
@@ -109,12 +105,12 @@ function cirro_dash_build() {
 	$items = array();
 	$rows = array();
 
-	// Add sortable.js to page for table reordering capabilities
+	// Add sortable.js to page
 	$mod_path = drupal_get_path('module', 'cirro_dash');
 	$js_path = "$mod_path/js/sorttable.js";
 	drupal_add_js($js_path);
 
-	// Load all entity info
+	// Load entity info
 	$entity_info = entity_get_info();
 	
 	// Loop through all entities
@@ -132,18 +128,18 @@ function cirro_dash_build() {
 		}
 
 	}
-	
 
-	// Loop through the cirro entities to check for user permissions
+	// Loop through the cirro entities 
 	foreach ( $cirro_entities as $mach_name => $info ) {
 
-		// If the user has permission to add content
+		// If the user does not have permission to add this entity
 		if ( user_access("add $mach_name") ) {
 
 			// If the entity has the 'add' property in its dashboard array
 			if ( in_array('add', $info['dashboard']) ) {
 	
 				// Append to the add content links
+	
 				$label = $info['label'];
 				$link = l("<div class=\"span3 action-btn\">+ Add $label</div>", "admin/dash/$mach_name/add", array('html' => TRUE));
 				$add_content_links .= "$link";
@@ -152,7 +148,7 @@ function cirro_dash_build() {
 
 		}
 
-		// If user has permission to edit content
+		// If user has permission to edit
 		if ( user_access("edit $mach_name") ) {
 
 			// If the entity has the 'primary' property in its dashboard array
@@ -178,7 +174,7 @@ function cirro_dash_build() {
 			// If the entity has the 'table' property in its dashboard array
 			if ( in_array('table', $info['dashboard']) ) {
 	
-				// Add to types array to allow for sorting by types
+				// Add to types array
 				$types[$mach_name] = $info['label'];			
 				
 			}
@@ -186,81 +182,7 @@ function cirro_dash_build() {
 		}
 
 	}
-	
-	// Build the table
-	// Filter form for table
-	$get_form = drupal_get_form('cirro_dash_filter', $types);
-	$filter_form = drupal_render($get_form);
-	$filter = "<div id=\"table-filter-wrapper\" class=\"dash-section\">$filter_form</div>";
 
-	// Get filter to limit types loaded for table
-	if (
-		isset($_SESSION['cirro_dash_type_filter']) &&
-		$_SESSION['cirro_dash_type_filter'] !== '*'
-	) {
-
-		// Replace types array with filter selection
-		$types = array($_SESSION['cirro_dash_type_filter'] => $_SESSION['cirro_dash_type_filter']);
-
-	}
-
-	// Loop through types to build table items
-	foreach ( $types as $mach_name => $label ) {
-		
-		// Query specific data
-		$query_string = "
-			SELECT i.id, i.name, u.name AS user, i.created, i.changed, i.type, i.type_label
-				FROM cirro_$mach_name AS i
-				JOIN users AS u
-					ON i.uid = u.uid
-		";
-		
-		// Query the database
-		$query = db_query($query_string);
-		
-		// Get results
-		$result = $query->fetchAll();
-		
-		// Add to items array
-		$items = array_merge($items, $result);
-		
-	}
-
-	// Build table rows
-	foreach ( $items as $item ) {
-	
-		// Build table elements
-		$id = $item->id;
-		$type = $item->type;
-		$type_label = $item->type_label;
-		$title = l($item->name, "admin/dash/$type/$id/edit");
-		$type = $type_label;
-		$author = $item->user;
-		$created = format_date($item->created, 'short');
-		
-		// Check for 0 changed value
-		if ( $item->changed == 0 ) {
-			
-			// Replace changed with text
-			$updated = '<em>never</em>';
-			
-		} else {
-		
-			// Replace changed with formatted date
-			$updated = format_date($item->changed, 'short');	
-			
-		}
-		
-		// Create table row
-		$rows[] = array('data'=> array($title, $type, $author, $created, $updated));
-	}
-
-
-	// Create the html for the dashboard
-	// Build link for editing account info
-	$user_link = l('Edit login info', "user/{$user->uid}/edit");
-	$edit_user = "<div id=\"edit-user-wrapper\" class=\"dash-section\"><h3>$user_link</h3></div>";
-	
 	// Build the add content html	
 	$add_content_html = "
 		<div id=\"add-content-wrapper\" class=\"dash-section\">
@@ -287,7 +209,79 @@ function cirro_dash_build() {
 			$reorder_links
 		</div>";	
 
+	// Build link for editing account info
+	$user_link = l('Edit login info', "user/{$user->uid}/edit");
+	$edit_user = "<div id=\"edit-user-wrapper\" class=\"dash-section\"><h3>$user_link</h3></div>";
+
+	// Filter form for Table
+	$get_form = drupal_get_form('cirro_dash_filter', $types);
+	$filter_form = drupal_render($get_form);
+	$filter = "<div id=\"table-filter-wrapper\" class=\"dash-section\">$filter_form</div>";
+
+	// Get filter to limit types loaded for table
+	if (
+		isset($_SESSION['cirro_dash_type_filter']) &&
+		$_SESSION['cirro_dash_type_filter'] !== '*'
+	) {
+
+		// Replace types array with filter selection
+		$types = array($_SESSION['cirro_dash_type_filter'] => $_SESSION['cirro_dash_type_filter']);
+
+	}
+
+	// Loop through types to build items
+	foreach ( $types as $mach_name => $label ) {
+		
+		// Query specific data
+		$query_string = "
+			SELECT i.id, i.name, u.name AS user, i.created, i.changed, i.type, i.type_label
+				FROM cirro_$mach_name AS i
+				JOIN users AS u
+					ON i.uid = u.uid
+		";
+		
+		// Query
+		$query = db_query($query_string);
+		
+		// Get results
+		$result = $query->fetchAll();
+		
+		// Add to items array
+		$items = array_merge($items, $result);
+		
+	}
+
+	// Builds rows
+	foreach ( $items as $item ) {
 	
+		// Build elements
+		$id = $item->id;
+		$type = $item->type;
+		$type_label = $item->type_label;
+		$title = l($item->name, "admin/dash/$type/$id/edit");
+		$type = $type_label;
+		$author = $item->user;
+		$created = format_date($item->created, 'short');
+		
+		// Check for 0 changed value
+		if ( $item->changed == 0 ) {
+			
+			// Replace changed with text
+			$updated = '<em>never</em>';
+			
+		} else {
+		
+			// Replace changed with formatted date
+			$updated = format_date($item->changed, 'short');	
+			
+		}
+		
+		// Create row
+		$rows[] = array('data'=> array($title, $type, $author, $created, $updated));
+	}
+
+
+
 	// Build existing table
 	$header = array('TITLE', 'TYPE', 'AUTHOR', 'CREATED', 'UPDATED');
 
@@ -317,18 +311,19 @@ function cirro_dash_build() {
 			</div>
 		</div>
 	";
+	
+	// If the user in question is ONLY a funds user, then redirect to funds
+	$roles = $user->roles;
+	$count = count($roles);
+	if (in_array('Funds Portal User', $roles) && $count <= 2) {
+		drupal_goto('funds');
+	}
 
 	return $html;
 }
 
 /**
- * Add functions that allow for user-controlled capabilities
- * Filter by type
- * Reorder content
- */ 
-
-/**
- * Admin Dash filter form. Allows user to filter types on their dashboard.
+ * Admin Dash filter form.
  */
 function cirro_dash_filter($form, $form_state, $types) {
 
@@ -406,7 +401,27 @@ function cirro_dash_filter_submit($form, &$form_state) {
 }
 
 /**
- * Build weights page. Allows user to reorder content.
+ * Build weights page title
+ */
+function cirro_dash_weights_title($type) {
+	
+	// Init
+	$title = '';
+
+	$displays = array(
+		'activity' => 'Activity Items',
+		'news' => 'News Items',
+		'board_members' => 'Board Members',
+		'staff_members' => 'Staff Members',
+	);
+
+	$title .= "Reorder {$displays[$type]}";
+
+	return $title;
+}
+
+/**
+ * Build weights page
  */
 function cirro_dash_weights_page($type) {
 
@@ -557,7 +572,7 @@ function theme_cirro_dash_weights_form($variables) {
 		return $output;
 	}
 
-	// Activate tabledrag capabilities
+	// Activate tabledrag capsbility
 	drupal_add_tabledrag('draggable-table', 'order', 'sibling', 'weight-group');
 	
 	// Tabls init
@@ -587,7 +602,7 @@ function theme_cirro_dash_weights_form($variables) {
 		);
 	}
 	
-	// Put together table variables
+	// Put together table vars
 	$table_vars = array(
 		'header' => $headers,
 		'rows' => $rows,
