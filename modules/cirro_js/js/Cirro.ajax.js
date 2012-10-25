@@ -6,65 +6,19 @@
 	// Status codes accepted from the return of the AJAX calls
 	var statusCodes = [ "pass", "error", "exception" ];
 
-	// The Cirro AJAX error handler
-	function error( error, data ) {
-
-		// Console log the error
-		console.error( "Error: " + error );
-
-		// Create error message markup
-		var $errorMessage = $( "<div />", {
-			"class": "alert alert-error",
-		}).text( error );
-
-		// If data was passed to the error function
-		if ( typeof data === "object" ) {
-
-			// If trace was passed to the error function
-			if ( typeof data.trace === "object" ) {
-
-				// Console log the trace
-				console.log( "---TRACE---" );
-				console.log( data.trace );
-				console.log( "---/TRACE---" );
-
-			}
-
-			// If messages were passed to the error function
-			if ( typeof data.messages === "object" ) {
-
-				// Create messages markup
-				var $messages = $( "<ul />" );
-
-				// Loop through messages
-				$.each( data.messages, function( index, message ) {
-
-					// If the message is a string
-					if ( typeof message === "string" ) {
-
-						// Create the message markup
-						$( "<li />" ).text( message ).appendTo( $messages );
-
-					}
-
-				});
-
-				// Append the messages to the error message
-				$errorMessage.append( $messages );
-
-			}
-
-		}
-
-		// Prepend the error message to the main container
-		$( "div#main.container" ).prepend( $errorMessage );
-
-	}
-
-	// PUBLIC VARIABLES AND METHODS
+	// The default HTML element to print the Cirro AJAX errors
+	var $errorPlacement = $( "div#main.container" );
 
 	// The Cirro.ajax public method
 	Cirro.ajax = function( options, type ) {
+
+		// If the options parameter has an $errorPlacement property
+		if ( typeof options.$errorPlacement === "object" ) {
+
+			// Override the default error placement
+			$errorPlacement = options.$errorPlacement;
+			
+		}
 
 		// If the options parameter is not an object
 		if ( typeof options !== "object" ) {
@@ -177,6 +131,61 @@
 		// Run the jQuery AJAX method
 		$.ajax( ajaxOptions );
 
-	};
+	}
+
+	// The Cirro AJAX error handler
+	function error( error, data ) {
+
+		// Console log the error
+		console.error( "Error: " + error );
+
+		// Create error message markup
+		var $errorMessage = $( "<div />", {
+			"class": "alert alert-error",
+		}).text( error );
+
+		// If data was passed to the error function
+		if ( typeof data === "object" ) {
+
+			// If trace was passed to the error function
+			if ( typeof data.trace === "object" ) {
+
+				// Console log the trace
+				console.log( "---TRACE---" );
+				console.log( data.trace );
+				console.log( "---/TRACE---" );
+
+			}
+
+			// If messages were passed to the error function
+			if ( typeof data.messages === "object" ) {
+
+				// Create messages markup
+				var $messages = $( "<ul />" );
+
+				// Loop through messages
+				$.each( data.messages, function( index, message ) {
+
+					// If the message is a string
+					if ( typeof message === "string" ) {
+
+						// Create the message markup
+						$( "<li />" ).text( message ).appendTo( $messages );
+
+					}
+
+				});
+
+				// Append the messages to the error message
+				$errorMessage.append( $messages );
+
+			}
+
+		}
+
+		// Prepend the error message to the main container
+		$errorPlacement.prepend( $errorMessage );
+
+	}
 
 }( window.Cirro = window.Cirro || {}, jQuery, window ));
