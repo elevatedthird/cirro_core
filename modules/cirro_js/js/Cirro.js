@@ -12,19 +12,19 @@
 	 * Cirro JS Error Reporter
 	 */
 
-	// The default error placement
-	var $errorPlacement = $( "div#content" );
+	// The default error selector (where the errors get prepended to)
+	var errorSelector = "div#content";
 
 	// The Cirro error reporting function
 	Cirro.error = function( error, data ) {
 
 		// Console log the error
-		console.error( "Error: " + error );
+		console.error( error );
 
 		// Create error message markup
 		var $errorMessage = $( "<div />", {
 			"class": "alert alert-error",
-		}).text( error );
+		}).html( "<em>Cirro JS Framework Error: </em>" + error );
 
 		// If data was passed to the error function
 		if ( typeof data === "object" ) {
@@ -66,7 +66,7 @@
 		}
 
 		// Prepend the error message to the main container
-		$errorPlacement.prepend( $errorMessage );
+		$( errorSelector ).prepend( $errorMessage );
 
 	}
 
@@ -83,10 +83,10 @@
 	Cirro.ajax = function( options, type ) {
 
 		// If the options parameter has an $errorPlacement property
-		if ( typeof options.$errorPlacement === "object" ) {
+		if ( typeof options.errorSelector === "string" ) {
 
 			// Override the default error placement
-			$errorPlacement = options.$errorPlacement;
+			errorSelector = options.errorSelector;
 			
 		}
 

@@ -8,16 +8,37 @@
 
 	"use strict";
 
+
 	/**
-	 * Cirro WYSIWYG instantiation
+	 * Cirro WYSIWYG Validation
 	 */
 
-	// If the Cirro WYSIWYG object has not been defined or overwritten
-	if ( typeof Cirro.WYSIWYG !== "object"	) {
+	// If the Redactor jQuery plugin is not defined
+	if ( typeof $.fn.redactor !== "function" ) {
 
-		// ... this is where I left off
+		// Call error and stop the function
+		Cirro.error( "The Redactor Plugin was not added to the page." );
+		return;
+
+	}
+
+	// If the Cirro WYSIWYG object has been overridden and is now undefined
+	if ( 
+		typeof Cirro.WYSIWYG !== "object" ||
+		typeof Cirro.WYSIWYG.fieldSelector !== "string" ||
+		typeof Cirro.WYSIWYG.buttons !== "object"
+	) {
+
+		// Call error and stop the function
+		Cirro.error( "The WYSIWYG options are missing." );
+		return;
 		
 	}
+
+
+	/**
+	 * Document Ready and Plugin Instantiations
+	 */
 
 	// Cache references to the jQuery window and document
 	var $document = $( document );
