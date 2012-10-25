@@ -8,57 +8,68 @@
 /**
  * Implements hook_schema().
  */
-function project_items_schema() {
+function PROJECT_items_schema() {
 	
 	// Init
 	$schema = array();
+	
+	/*
+	 * Default fields
+	 *
+	 * This array of fields will be added onto the beginning of all schemas.
+	 */
+	$defaults = array(
+
+		'id' => array(
+			'type' => 'serial',
+			'unsigned' => TRUE,
+			'not null' => TRUE,
+			'form' => array(
+				'#type' => 'hidden',
+			),
+		),
+	
+		'created' => array(
+			'type' => 'int',
+			'unsigned' => TRUE,
+			'not null' => TRUE,
+			'default' => 0
+		),
+	
+		'changed' => array(
+			'type' => 'int',
+			'unsigned' => TRUE,
+			'not null' => TRUE,
+			'default' => 0,
+		),
+	
+		'uid' => array(
+			'type' => 'int',
+			'unsigned' => TRUE,
+		),
+		
+		'type' => array(
+			'type' => 'varchar',
+			'length' => 255,
+			'not null' => TRUE,
+			'default' => '',
+		),
+		
+		'type_label' => array(
+			'type' => 'varchar',
+			'length' => 255,
+			'not null' => TRUE,
+			'default' => '',
+		),
+
+	);
 
 	// HOME PAGE
 	$schema['cirro_home_page'] = array(
+
 		'description' => 'Base table for home_page',
+
 		'fields' => array(
-
-			'id' => array(
-				'type' => 'serial',
-				'unsigned' => TRUE,
-				'not null' => TRUE,
-				'form' => array(
-					'#type' => 'hidden',
-				),
-			),
-
-			'created' => array(
-				'type' => 'int',
-				'unsigned' => TRUE,
-				'not null' => TRUE,
-				'default' => 0
-			),
-
-			'changed' => array(
-				'type' => 'int',
-				'unsigned' => TRUE,
-				'not null' => TRUE,
-				'default' => 0,
-			),
-
-			'uid' => array(
-				'type' => 'int',
-				'unsigned' => TRUE,
-			),
-			
-			'type' => array(
-				'type' => 'varchar',
-				'length' => 255,
-				'not null' => TRUE,
-				'default' => '',
-			),
-			
-			'type_label' => array(
-				'type' => 'varchar',
-				'length' => 255,
-				'not null' => TRUE,
-				'default' => '',
-			),
 
 			'primary_img' => array(
 				'type' => 'int',
@@ -78,50 +89,10 @@ function project_items_schema() {
 
 	// ABOUT PAGE
 	$schema['cirro_about_page'] = array(
+
 		'description' => 'Base table for about_page',
+
 		'fields' => array(
-
-			'id' => array(
-				'type' => 'serial',
-				'unsigned' => TRUE,
-				'not null' => TRUE,
-				'form' => array(
-					'#type' => 'hidden',
-				),
-			),
-
-			'created' => array(
-				'type' => 'int',
-				'unsigned' => TRUE,
-				'not null' => TRUE,
-				'default' => 0
-			),
-
-			'changed' => array(
-				'type' => 'int',
-				'unsigned' => TRUE,
-				'not null' => TRUE,
-				'default' => 0,
-			),
-
-			'uid' => array(
-				'type' => 'int',
-				'unsigned' => TRUE,
-			),
-			
-			'type' => array(
-				'type' => 'varchar',
-				'length' => 255,
-				'not null' => TRUE,
-				'default' => '',
-			),
-			
-			'type_label' => array(
-				'type' => 'varchar',
-				'length' => 255,
-				'not null' => TRUE,
-				'default' => '',
-			),
 
 			'about_page_vimeo_id' => array(
 				'type' => 'varchar',
@@ -188,52 +159,10 @@ function project_items_schema() {
 
 	// PRESS PAGE
 	$schema['cirro_press_page'] = array(
+
 		'description' => 'Base table for press_page',
-		'fields' => array(
 
-			'id' => array(
-				'type' => 'serial',
-				'unsigned' => TRUE,
-				'not null' => TRUE,
-				'form' => array(
-					'#type' => 'hidden',
-				),
-			),
-
-			'created' => array(
-				'type' => 'int',
-				'unsigned' => TRUE,
-				'not null' => TRUE,
-				'default' => 0
-			),
-
-			'changed' => array(
-				'type' => 'int',
-				'unsigned' => TRUE,
-				'not null' => TRUE,
-				'default' => 0,
-			),
-
-			'uid' => array(
-				'type' => 'int',
-				'unsigned' => TRUE,
-			),
-			
-			'type' => array(
-				'type' => 'varchar',
-				'length' => 255,
-				'not null' => TRUE,
-				'default' => '',
-			),
-			
-			'type_label' => array(
-				'type' => 'varchar',
-				'length' => 255,
-				'not null' => TRUE,
-				'default' => '',
-			),
-
-		),
+		'fields' => array(),
 
 		'primary key' => array('id'),
 
@@ -241,50 +170,10 @@ function project_items_schema() {
 
 	// CONTACT PAGE
 	$schema['cirro_contact_page'] = array(
+
 		'description' => 'Base table for contact_page',
+
 		'fields' => array(
-
-			'id' => array(
-				'type' => 'serial',
-				'unsigned' => TRUE,
-				'not null' => TRUE,
-				'form' => array(
-					'#type' => 'hidden',
-				),
-			),
-
-			'created' => array(
-				'type' => 'int',
-				'unsigned' => TRUE,
-				'not null' => TRUE,
-				'default' => 0
-			),
-
-			'changed' => array(
-				'type' => 'int',
-				'unsigned' => TRUE,
-				'not null' => TRUE,
-				'default' => 0,
-			),
-
-			'uid' => array(
-				'type' => 'int',
-				'unsigned' => TRUE,
-			),
-			
-			'type' => array(
-				'type' => 'varchar',
-				'length' => 255,
-				'not null' => TRUE,
-				'default' => '',
-			),
-			
-			'type_label' => array(
-				'type' => 'varchar',
-				'length' => 255,
-				'not null' => TRUE,
-				'default' => '',
-			),
 
 			'contact_page_text' => array(
 				'type' => 'text',
@@ -304,16 +193,10 @@ function project_items_schema() {
 
 	// STORE ITEM
 	$schema['cirro_store_item'] = array(
+
 		'description' => 'Base table for store_item',
+
 		'fields' => array(
-			'id' => array(
-				'type' => 'serial',
-				'unsigned' => TRUE,
-				'not null' => TRUE,
-				'form' => array(
-					'#type' => 'hidden',
-				),
-			),
 			
 			'name' => array(
 				'type' => 'varchar',
@@ -323,39 +206,6 @@ function project_items_schema() {
 					'#type' => 'textfield',
 					'#title' => 'Store Item Name',
 				),
-			),
-			
-			'created' => array(
-				'type' => 'int',
-				'unsigned' => TRUE,
-				'not null' => TRUE,
-				'default' => 0
-			),
-
-			'changed' => array(
-				'type' => 'int',
-				'unsigned' => TRUE,
-				'not null' => TRUE,
-				'default' => 0,
-			),
-
-			'uid' => array(
-				'type' => 'int',
-				'unsigned' => TRUE,
-			),
-			
-			'type' => array(
-				'type' => 'varchar',
-				'length' => 255,
-				'not null' => TRUE,
-				'default' => '',
-			),
-			
-			'type_label' => array(
-				'type' => 'varchar',
-				'length' => 255,
-				'not null' => TRUE,
-				'default' => '',
 			),
 
 			'weight' => array(
@@ -385,23 +235,6 @@ function project_items_schema() {
 				 ),	 
 			),
 			
-			'price' => array(
-				'type' => 'numeric',
-				'size' => 'normal',
-				'precision' => 6,
-				'scale' => 2,
-				'unsigned' => TRUE,
-				'not null' => TRUE,
-				'default' => 0,
-				'form' => array(
-					'#type' => 'textfield',
-					'#title' => 'Price',
-					'#description' => 'Numeric values only',
-					'#element_validate' => array('cirro_admin_numeric_element_validate'),
-					'#default_value' => 0,
-				),
-			),
-			
 			'details' => array(
 				'type' => 'text',
 				'size' => 'medium',
@@ -427,17 +260,9 @@ function project_items_schema() {
 	);
 
 	$schema['cirro_collection'] = array(
+
 		'description' => 'Base table for collection',
 		'fields' => array(
-			
-			'id' => array(
-				'type' => 'serial',
-				'unsigned' => TRUE,
-				'not null' => TRUE,
-				'form' => array(
-					'#type' => 'hidden',
-				),
-			),
 			
 			'name' => array(
 				'type' => 'varchar',
@@ -447,39 +272,6 @@ function project_items_schema() {
 					'#type' => 'textfield',
 					'#title' => 'Collection Name',
 				),
-			),
-			
-			'created' => array(
-				'type' => 'int',
-				'unsigned' => TRUE,
-				'not null' => TRUE,
-				'default' => 0
-			),
-
-			'changed' => array(
-				'type' => 'int',
-				'unsigned' => TRUE,
-				'not null' => TRUE,
-				'default' => 0,
-			),
-
-			'uid' => array(
-				'type' => 'int',
-				'unsigned' => TRUE,
-			),
-			
-			'type' => array(
-				'type' => 'varchar',
-				'length' => 255,
-				'not null' => TRUE,
-				'default' => '',
-			),
-			
-			'type_label' => array(
-				'type' => 'varchar',
-				'length' => 255,
-				'not null' => TRUE,
-				'default' => '',
 			),
 
 			'weight' => array(
@@ -495,14 +287,10 @@ function project_items_schema() {
 	);
 	
 	$schema['cirro_blog'] = array(
+
 		'description' => 'Base table for blog',
+
 		'fields' => array(
-			
-			'id' => array(
-				'type' => 'serial',
-				'unsigned' => TRUE,
-				'not null' => TRUE,
-			),
 			
 			'name' => array(
 				'type' => 'varchar',
@@ -512,39 +300,6 @@ function project_items_schema() {
 					'#type' => 'textfield',
 					'#title' => 'Blog Title',
 				),
-			),
-			
-			'created' => array(
-				'type' => 'int',
-				'unsigned' => TRUE,
-				'not null' => TRUE,
-				'default' => 0
-			),
-
-			'changed' => array(
-				'type' => 'int',
-				'unsigned' => TRUE,
-				'not null' => TRUE,
-				'default' => 0,
-			),
-
-			'uid' => array(
-				'type' => 'int',
-				'unsigned' => TRUE,
-			),
-				
-			'type' => array(
-				'type' => 'varchar',
-				'length' => 255,
-				'not null' => TRUE,
-				'default' => '',
-			),
-			
-			'type_label' => array(
-				'type' => 'varchar',
-				'length' => 255,
-				'not null' => TRUE,
-				'default' => '',
 			),
 			
 			'weight' => array(
@@ -586,15 +341,11 @@ function project_items_schema() {
 	);
 
 	$schema['cirro_location'] = array(
+
 		'description' => 'Base table for location',
+
 		'fields' => array(
-			
-			'id' => array(
-				'type' => 'serial',
-				'unsigned' => TRUE,
-				'not null' => TRUE,
-			),
-			
+
 			'name' => array(
 				'type' => 'varchar',
 				'length' => 255,
@@ -604,39 +355,6 @@ function project_items_schema() {
 					'#title' => 'Store Name',
 					'#required' => TRUE,
 				),
-			),
-			
-			'created' => array(
-				'type' => 'int',
-				'unsigned' => TRUE,
-				'not null' => TRUE,
-				'default' => 0
-			),
-		
-			'changed' => array(
-				'type' => 'int',
-				'unsigned' => TRUE,
-				'not null' => TRUE,
-				'default' => 0,
-			),
-		
-			'uid' => array(
-				'type' => 'int',
-				'unsigned' => TRUE,
-			),
-			
-			'type' => array(
-				'type' => 'varchar',
-				'length' => 255,
-				'not null' => TRUE,
-				'default' => '',
-			),
-			
-			'type_label' => array(
-				'type' => 'varchar',
-				'length' => 255,
-				'not null' => TRUE,
-				'default' => '',
 			),
 
 			'address' => array(
@@ -685,6 +403,13 @@ function project_items_schema() {
 		
 	);
 
+	// Loop through schema
+	foreach ( $schema as $index => $item_schema ) {
+		
+		// Merge default fields onto fields array
+		$schema[$index]['fields'] = array_merge($defaults, $schema[$index]['fields']);
+
+	}
 
 	return $schema;
 
