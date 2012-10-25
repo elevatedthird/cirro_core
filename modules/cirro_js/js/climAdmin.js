@@ -50,6 +50,8 @@
 		var $textareas = $( Cirro.WYSIWYG.fieldSelector );
 		var buttons = Cirro.WYSIWYG.buttons;
 
+console.log( $textareas );
+
 		// Instantiate redactor
 		$textareas.redactor({
 			buttons: buttons,

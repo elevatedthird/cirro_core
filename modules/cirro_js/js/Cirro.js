@@ -211,7 +211,7 @@
 
 	// The default Cirro WYSIWYG options
 	Cirro.WYSIWYG = {
-		fieldSelector: "textarea",
+		fieldSelector: "textarea",//"textarea:not(.no-wysiwyg)",
 		buttons: [ 'html', 'formatting', 'unorderedlist', 'link' ],
 	};
 
