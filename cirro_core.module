@@ -77,6 +77,49 @@ function cirro_core_theme() {
 }
 
 /**
+ * Implements hook_entity_info().
+ */
+function cirro_core_entity_info() {
+ 
+  // Init
+ 	$entities = array ();
+
+  //  Create_multi_image
+	$entities['multi_img'] = array(
+		'label' => t('Multiple Image'),
+		'controller class' => 'cirroCoreController',
+		'base table' => 'cirro_multi_img',
+		'fieldable' => FALSE,
+		'entity keys' => array(
+			'id' => 'id',
+		),
+		'static cache' => TRUE,
+	);
+	
+	return $entities;
+
+}
+
+ /*
+ * Implements hook_js_alter
+ *
+ * Updates jQuery on all pages for the overlay plugin
+ */
+	function cirro_core_js_alter(&$javascript) {
+	
+		global $theme;
+		// Conditional so it won't run on admin pages
+		if ($theme !== 'climAdmin'){
+			// Define path to jQuery
+			$jquery_path = '//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js';
+		
+			// Upgrade jQuery
+			$javascript['misc/jquery.js']['data'] = $jquery_path;	
+		
+		}
+	}
+
+/**
  * Implements hook_menu().
  *
  * Programmatically create page registrations for CRUD GUI.
@@ -163,6 +206,28 @@ function cirro_core_menu() {
 	}
 	
 	return $items;
+
+}
+
+/**
+ * Load single entity item.
+ *
+ * @param $id
+ *   ID of item to load
+ *
+ * @param $type
+ *   Entity type of item to load.
+ *
+ * @return
+ *   Item object
+ */
+function cirro_core_single_load($id, $type) {
+	
+	// Load array from entity_load
+	$array = entity_load($type, array($id));
+	
+	// Return first item
+	return reset($array);
 
 }
 
@@ -415,27 +480,6 @@ function theme_cirro_core_multi_img_weight_form($variables) {
 
 }
 
-// Hook entity info
-function cirro_core_entity_info(){
- 
-  // Init
- 	$entities = array ();
-
-  //  Create_multi_image
-	$entities['multi_img'] = array(
-		'label' => t('Multiple Image'),
-		'controller class' => 'cirroCoreController',
-		'base table' => 'cirro_multi_img',
-		'fieldable' => FALSE,
-		'entity keys' => array(
-			'id' => 'id',
-		),
-		'static cache' => TRUE,
-	);
-	
-	return $entities;
-}
-
 /**
  * Multi-image load helper function
  */
@@ -477,46 +521,3 @@ function cirro_core_entity_info(){
 	
 	 return $imgs;	 
  }
- 
- 
- /*
- * Implements hook_js_alter
- *
- * Updates jQuery on all pages for the overlay plugin
- */
-	function cirro_core_js_alter(&$javascript) {
-	
-		global $theme;
-		// Conditional so it won't run on admin pages
-		if ($theme !== 'climAdmin'){
-			// Define path to jQuery
-			$jquery_path = '//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js';
-		
-			// Upgrade jQuery
-			$javascript['misc/jquery.js']['data'] = $jquery_path;	
-		
-		}
-	}
-
-
-/**
- * Load single entity item.
- *
- * @param $id
- *   ID of item to load
- *
- * @param $type
- *   Entity type of item to load.
- *
- * @return
- *   Item object
- */
-	function cirro_core_single_load($id, $type) {
-		
-		// Load array from entity_load
-		$array = entity_load($type, array($id));
-		
-		// Return first item
-		return reset($array);
-	
-	}
