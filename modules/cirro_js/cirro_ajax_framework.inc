@@ -27,7 +27,14 @@ function cirro_ajax_framework() {
 			throw new Exception('Callback argument missing');
 	
 		}
-	
+
+		// Check for valid callback
+		if ( end(explode('_', $post['callback'])) !== 'cjax' ) {
+
+			throw new Exception('Callback argument invalid');
+
+		}
+
 		// Load callback
 		$callback = $post['callback'];
 		

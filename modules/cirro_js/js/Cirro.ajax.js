@@ -61,6 +61,8 @@
 
 	}
 
+	// PUBLIC VARIABLES AND METHODS
+
 	// The Cirro.ajax public method
 	Cirro.ajax = function( options, type ) {
 

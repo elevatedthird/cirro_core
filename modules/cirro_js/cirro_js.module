@@ -2,13 +2,13 @@
 
 /**
  * @file
- * The Cirro AJAX framework, which controlls AJAX communication on the site.
+ * The Cirro JS framework, which controls the global js capabilities of the site
  */
 
 /**
  * Implements hook_menu()
  */
-function cirro_ajax_menu() {
+function cirro_js_menu() {
 
 	// The Cirro AJAX framework
 	$items['cirro/ajax'] = array(
@@ -24,11 +24,11 @@ function cirro_ajax_menu() {
 /**
  * Implements hook_init()
  */
-function cirro_ajax_init() {
+function cirro_js_init() {
 
 	// Init
 	global $theme;
-	$module_path = drupal_get_path('module', 'cirro_ajax');
+	$module_path = drupal_get_path('module', 'cirro_js');
 	$js_path = '';
 
 	// If not the clim admin theme
@@ -36,7 +36,7 @@ function cirro_ajax_init() {
 
 		// Add the Cirro.ajax.js script to all pages for AJAX framework access
 		$js_path = $module_path . '/js/Cirro.ajax.js';
-		drupal_add_js($js_path, array('weight' => 20));
+		drupal_add_js($js_path, array('weight' => 30));
 
 	}
 
