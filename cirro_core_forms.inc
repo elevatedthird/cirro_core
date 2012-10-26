@@ -62,7 +62,7 @@ function cirro_core_entity_edit_page($type, $item, $action = NULL) {
 			$id = $item->$id_field;	
 
 			// Loop through multi-imgs
-			foreach ( $multi_imgs as $name => $info ) {
+			foreach ( $multi_imgs as $field => $info ) {
 
 				// Query existing imgs
 				$query_string = "
@@ -87,20 +87,27 @@ function cirro_core_entity_edit_page($type, $item, $action = NULL) {
 				// Count imgs
 				$img_count = count($imgs);
 
-				// Get img weight form
-				$weight_form_array = drupal_get_form(
-					"cirro_core_{$type}_{$name}_multi_img_weights",
-					$id,
-					$type,
-					$name.
-					$imgs
+				// Build img weight form options
+				$img_weight_options = array(
+					'id' => $id,
+					'type' => $type,
+					'field' => $field,
+					'imgs' => $imgs,
 				);
 
-				if ( isset($info['limit']) && $img_count > $info['limit'] ) {
+				// Get img weight form
+				$weight_form_array = drupal_get_form(
+					"cirro_core_{$type}_{$field}_multi_img_weights", $img_weight_options);
+
+				if ( isset($info['limit']) && $img_count >= $info['limit'] ) {
 					
 					// Replace upload field with limit warning
 					$upload_form = "
-						<span class=\"You have reached the upload limit of {$info['limit']}";
+						<div class=\"alert alert-info\">
+							You have reached the upload limit of {$info['limit']} images.<br />
+							Delete some images in order to add more.
+						</div>
+					";
 					
 				} else {
 
@@ -109,7 +116,7 @@ function cirro_core_entity_edit_page($type, $item, $action = NULL) {
 						'cirro_core_multi_img_upload_form',
 						$id,
 						$type,
-						$name
+						$field
 					);
 					
 					// Render upload form
@@ -537,7 +544,8 @@ function cirro_core_multi_img_upload_form($form, &$form_state, $id, $type, $fiel
 		'#type' => 'managed_file',
 		'#upload_location' => "public://multi_imgs/$type/$field",
 		'#upload_validators' => array(
-			'file_validate_extensions' => array('jpg jpeg gif png')
+			'file_validate_extensions' => array('jpg jpeg gif png'),
+			'file_validate_size' => array(1048576),
 		),
 	);
 
@@ -587,10 +595,14 @@ function cirro_core_multi_img_upload_form_submit($form, &$form_state) {
  * @param $imgs
  *   Array of img items
  */
-function cirro_core_multi_img_weight_form($form, &$form_state, $id, $type, $field) {
+function cirro_core_multi_img_weight_form($form, &$form_state, $options) {
 
 	// Init
 	$form = array();
+	$id = $options['id'];
+	$type = $options['type'];
+	$field = $options['field'];
+	$imgs = $options['imgs'];
 
 	// Build weight options
 	$weight_options = array();
