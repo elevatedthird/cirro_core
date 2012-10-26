@@ -2,3 +2,5 @@ name = PROJECT Items
 description = Define entity info
 core = 7.x
 package = Cirro
+
+dependencies[] = cirro_core
