@@ -100,25 +100,6 @@ function cirro_core_entity_info() {
 
 }
 
- /*
- * Implements hook_js_alter
- *
- * Updates jQuery on all pages for the overlay plugin
- */
-	function cirro_core_js_alter(&$javascript) {
-	
-		global $theme;
-		// Conditional so it won't run on admin pages
-		if ($theme !== 'climAdmin'){
-			// Define path to jQuery
-			$jquery_path = '//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js';
-		
-			// Upgrade jQuery
-			$javascript['misc/jquery.js']['data'] = $jquery_path;	
-		
-		}
-	}
-
 /**
  * Implements hook_menu().
  *
