@@ -243,7 +243,7 @@ function cirro_dash_build() {
 		$id = $item->id;
 		$type = $item->type;
 		$type_label = $item->type_label;
-		$title = l($item->name, "admin/dash/$type/$id/edit");
+		$title = l($item->title, "admin/dash/$type/$id/edit");
 		$type = $type_label;
 		$author = $item->user;
 		$created = format_date($item->created, 'short');
