@@ -14,6 +14,7 @@ function cirro_core_entity_edit_page($type, $item, $action = NULL) {
 	$info = entity_get_info($type);
 	$schema = drupal_get_schema($info['base table']);
 	$id_field = $info['entity keys']['id'];
+	$children = '';
 	$imgs = '';
 
 	// Load primary form
@@ -27,10 +28,51 @@ function cirro_core_entity_edit_page($type, $item, $action = NULL) {
 		</div>
 	";
 
+	// Check for Children
+	if ( isset($info['children']) ) {
+		
+		// Load children
+		$children_types = $info['children'];
+		
+		// Check for Add page
+		if ( $item === 'add' ) {
+		
+			// Loop through children
+			foreach ( $children_types as $child_type => $child_label ) {
+				
+				// Build child form placeholder
+				$child_form = "
+					<div class=\"children-form-wrapper\">
+						<div class=\"title-wrapper\">
+							<h2>$child_label</h2>
+						</div>
+						<div class=\"note-wrapper\">
+							<h4>Finish creating item in order to add {$child_label}s</h4>
+						</div>
+					</div>
+				";
+				
+				// Add to children markup
+				$children .= $child_form;
+				
+				
+			}
+		
+		
+		} else {
+			
+			// Edit page
+			
+			
+			
+		}
+		
+	}
+
 	// Check for multi_img in schema
 	if ( isset($info['multi_img']) ) {
 
-		// Load multi_imgs array
+		// Load multi imgs
 		$multi_imgs = $info['multi_img'];
 
 		// Check for add
@@ -160,6 +202,7 @@ function cirro_core_entity_edit_page($type, $item, $action = NULL) {
 				$form_wrapped
 			</div>
 			<div class=\"span6\">
+				$children
 				$imgs
 			</div>
 		</div>
