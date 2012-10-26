@@ -1,21 +1,30 @@
 /**
- * The Cirro AJAX framework
+ * The Cirro JS framework
+ *
+ * This script is called in the header of the page after jQuery,
+ * but before any plugin definitions.
  */
-(function( Cirro, $, window, undefined ) {
+;(function( Cirro, $, window, document, undefined ) {
 
-	// Status codes accepted from the return of the AJAX calls
-	var statusCodes = [ "pass", "error", "exception" ];
+	"use strict";
 
-	// The Cirro AJAX error handler
-	function error( error, data ) {
+	/**
+	 * Cirro JS Error Reporter
+	 */
+
+	// The default error selector (where the errors get prepended to)
+	var errorSelector = "div#content";
+
+	// The Cirro error reporting function
+	Cirro.error = function( error, data ) {
 
 		// Console log the error
-		console.error( "Error: " + error );
+		console.error( error );
 
 		// Create error message markup
 		var $errorMessage = $( "<div />", {
 			"class": "alert alert-error",
-		}).text( error );
+		}).html( "<em>Cirro JS Framework Error: </em>" + error );
 
 		// If data was passed to the error function
 		if ( typeof data === "object" ) {
@@ -57,20 +66,35 @@
 		}
 
 		// Prepend the error message to the main container
-		$( "div#main.container" ).prepend( $errorMessage );
+		$( errorSelector ).prepend( $errorMessage );
 
 	}
 
-	// PUBLIC VARIABLES AND METHODS
+
+
+	/**
+	 * Cirro AJAX
+	 */
+
+	// Status codes accepted from the return of the AJAX calls
+	var statusCodes = [ "pass", "error", "exception" ];
 
 	// The Cirro.ajax public method
 	Cirro.ajax = function( options, type ) {
+
+		// If the options parameter has an $errorPlacement property
+		if ( typeof options.errorSelector === "string" ) {
+
+			// Override the default error placement
+			errorSelector = options.errorSelector;
+			
+		}
 
 		// If the options parameter is not an object
 		if ( typeof options !== "object" ) {
 
 			// Call error and stop the function
-			error( "Options passed to Cirro AJAX is not an object." );
+			Cirro.error( "Options passed to Cirro AJAX is not an object." );
 			return;
 
 		}
@@ -79,20 +103,20 @@
 		if ( typeof options.data === "undefined" ) {
 
 			// Call error and stop the function
-			error( "No data passed to Cirro AJAX." );
+			Cirro.error( "No data passed to Cirro AJAX." );
 			return;
 
 		}
 
 		// Define the ajaxOptions
-		ajaxOptions = {
+		var ajaxOptions = {
 			url: "/Cirro/ajax",
 			type: "POST",
 			data: options.data,
 			error: function( jqXHR, textStatus, errorThrown ) {
 
 				// Call error
-				error( "Cirro AJAX framework PHP page was not found." );
+				Cirro.error( "Cirro AJAX framework PHP page was not found." );
 
 			},
 			success: function( data, textStatus, jqXHR ) {
@@ -101,7 +125,7 @@
 				if ( typeof data !== "object" ) {
 
 					// Call error and stop the success function
-					error( "Data returned from Cirro AJAX is not an object." );
+					Cirro.error( "Data returned from Cirro AJAX is not an object." );
 					return;
 
 				}
@@ -110,7 +134,7 @@
 				if ( typeof data.status === "undefined" ) {
 
 					// Call error and stop the success function
-					error( "No status returned from Cirro AJAX." );
+					Cirro.error( "No status returned from Cirro AJAX." );
 					return;
 
 				}
@@ -119,7 +143,7 @@
 				if ( typeof data.status !== "string" ) {
 
 					// Call error and stop the success function
-					error( "Status returned from Cirro AJAX is not a string." );
+					Cirro.error( "Status returned from Cirro AJAX is not a string." );
 					return;
 
 				}
@@ -128,7 +152,7 @@
 				if ( $.inArray( data.status, statusCodes ) === -1 ) {
 
 					// Call error and stop the success function
-					error( "Status returned from Cirro AJAX is not recognized." );
+					Cirro.error( "Status returned from Cirro AJAX is not recognized." );
 					return;
 
 				}
@@ -137,7 +161,7 @@
 				if ( data.status === "exception" ) {
 
 					// Call the error and stop the success function
-					error( "Cirro AJAX threw an exception.", data );
+					Cirro.error( "Cirro AJAX threw an exception.", data );
 					return;
 
 				}
@@ -146,7 +170,7 @@
 				if ( data.status === "error" ) {
 
 					// Call the error and stop the success function
-					error( "Cirro AJAX returned an error.", data );
+					Cirro.error( "Cirro AJAX returned an error.", data );
 					return;
 
 				}
@@ -177,6 +201,20 @@
 		// Run the jQuery AJAX method
 		$.ajax( ajaxOptions );
 
+	}
+
+
+
+	/**
+	 * Cirro WYSIWYG
+	 */
+
+	// The default Cirro WYSIWYG options
+	Cirro.WYSIWYG = {
+		fieldSelector: "textarea",
+		buttons: [ 'html', 'formatting', 'unorderedlist', 'link' ],
 	};
 
-}( window.Cirro = window.Cirro || {}, jQuery, window ));
+
+
+}( window.Cirro = window.Cirro || {}, jQuery, window, document ));
