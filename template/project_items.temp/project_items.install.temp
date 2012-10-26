@@ -409,6 +409,9 @@ function PROJECT_items_schema() {
 		// Merge default fields onto fields array
 		$schema[$index]['fields'] = array_merge($defaults, $schema[$index]['fields']);
 
+		// Add primary key
+		$schema[$index]['primary key'] = array('id');
+
 	}
 
 	return $schema;
