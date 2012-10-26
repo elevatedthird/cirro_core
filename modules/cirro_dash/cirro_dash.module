@@ -182,7 +182,7 @@ function cirro_dash_build() {
 			if ( in_array('table', $info['dashboard']) ) {
 	
 				// Add to types array to allow for sorting by types
-				$types[$mach_name] = $info['label'];			
+				$types[$mach_name] = $info;			
 				
 			}
 			
@@ -211,12 +211,16 @@ function cirro_dash_build() {
 	}
 
 	// Loop through types to build table items
-	foreach ( $types as $mach_name => $label ) {
+	foreach ( $types as $mach_name => $info ) {
+		
+		// Init
+		$label = $info['label'];
+		$table = $info['base table'];
 		
 		// Query specific data
 		$query_string = "
-			SELECT i.id, i.name, u.name AS user, i.created, i.changed, i.type, i.type_label
-				FROM cirro_$mach_name AS i
+			SELECT i.id, i.title, u.name AS user, i.created, i.changed, i.type, i.type_label
+				FROM $table AS i
 				JOIN users AS u
 					ON i.uid = u.uid
 		";

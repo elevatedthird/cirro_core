@@ -64,24 +64,61 @@ function cirro_core_entity_edit_page($type, $item, $action = NULL) {
 			// Loop through multi-imgs
 			foreach ( $multi_imgs as $name => $info ) {
 
+				// Query existing imgs
+				$query_string = "
+					SELECT id, fid, weight, img_alt, img_title
+						FROM cirro_multi_img
+						WHERE parent_id = :id
+						AND parent_type = :type
+						AND parent_field = :field
+						ORDER BY weight, created
+				";
+			
+				$placeholders = array(
+					':id' => $id,
+					':type' => $type,
+					':field' => $field
+				);
+			
+				$query = db_query($query_string, $placeholders);
+			
+				$imgs = $query->fetchAll();
+				
+				// Count imgs
+				$img_count = count($imgs);
+
+				// Get img weight form
 				$weight_form_array = drupal_get_form(
 					"cirro_core_{$type}_{$name}_multi_img_weights",
 					$id,
 					$type,
-					$name
+					$name.
+					$imgs
 				);
 
-				// Load forms
-				$upload_form_array = drupal_get_form(
-					'cirro_core_multi_img_upload_form',
-					$id,
-					$type,
-					$name
-				);
+				if ( isset($info['limit']) && $img_count > $info['limit'] ) {
+					
+					// Replace upload field with limit warning
+					$upload_form = "
+						<span class=\"You have reached the upload limit of {$info['limit']}";
+					
+				} else {
+
+					// Load forms
+					$upload_form_array = drupal_get_form(
+						'cirro_core_multi_img_upload_form',
+						$id,
+						$type,
+						$name
+					);
+					
+					// Render upload form
+					$upload_form = drupal_render($upload_form_array);
+					
+				}
 
 				// Render forms
 				$weight_form = drupal_render($weight_form_array);
-				$upload_form = drupal_render($upload_form_array);
 
 				// Build multi img form elements
 				$img_form = "
@@ -547,6 +584,8 @@ function cirro_core_multi_img_upload_form_submit($form, &$form_state) {
  *   Entity type
  * @param $field
  *   Entity field name
+ * @param $imgs
+ *   Array of img items
  */
 function cirro_core_multi_img_weight_form($form, &$form_state, $id, $type, $field) {
 
@@ -581,26 +620,6 @@ function cirro_core_multi_img_weight_form($form, &$form_state, $id, $type, $fiel
 	// Setup imgs array
 	$form['imgs'] = array();
 	$form['imgs']['#tree'] = TRUE;
-
-	// Query items
-	$query_string = "
-		SELECT id, fid, weight, img_alt, img_title
-			FROM cirro_multi_img
-			WHERE parent_id = :id
-			AND parent_type = :type
-			AND parent_field = :field
-			ORDER BY weight, created
-	";
-
-	$placeholders = array(
-		':id' => $id,
-		':type' => $type,
-		':field' => $field
-	);
-
-	$query = db_query($query_string, $placeholders);
-
-	$imgs = $query->fetchAll();
 
 	// Loop through images
 	foreach ( $imgs as $img ) {
