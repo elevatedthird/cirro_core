@@ -30,6 +30,7 @@ function cirro_js_init() {
 	global $theme;
 	$module_path = drupal_get_path('module', 'cirro_js');
 	$js_path = '';
+	$css_path = '';
 
 	// JS added to all pages
 	$js_path = "$module_path/js/Cirro.js";
@@ -43,6 +44,10 @@ function cirro_js_init() {
 		drupal_add_js($js_path, array('weight' => 30));
 		$js_path = "$module_path/js/climAdmin.js";
 		drupal_add_js($js_path, array('scope' => 'footer', 'weight' => 0));
+
+		// CSS added to climAdmin pages only
+		$css_path = "$module_path/css/redactor.css";
+		drupal_add_css($css_path);
 
 	}
 

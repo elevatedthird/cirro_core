@@ -35,7 +35,6 @@
 		
 	}
 
-
 	/**
 	 * Document Ready and Plugin Instantiations
 	 */
