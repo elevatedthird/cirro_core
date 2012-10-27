@@ -268,11 +268,30 @@ function cirro_core_forms($form_id, $args) {
 			// Loop through multi img fields
 			foreach ( $info['multi_img'] as $field_name => $field_data ) {
 				
-				// Add name to forms array
+				// Add multi_img weights form id
 				$forms["cirro_core_{$mach_name}_{$field_name}_multi_img_weights"] = array(
+
 					'callback' => 'cirro_core_multi_img_weight_form',
+
 				);
 
+			}
+			
+		}
+		
+		// Check schema for children
+		if ( isset($info['children']) ) {
+			
+			// Loop through children
+			foreach ( $info['children'] as $child_type => $child_label ) {
+				
+				// Create form id mapping
+				$forms["cirro_core_{$child_type}_children_weights"] = array(
+					
+					'callback' => 'cirro_core_children_weight_form',
+
+				);
+				
 			}
 			
 		}

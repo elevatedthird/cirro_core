@@ -17,6 +17,14 @@ function cirro_core_entity_edit_page($type, $item, $action = NULL) {
 	$children = '';
 	$imgs = '';
 
+	// Check for add
+	if ( $item !== 'add' ) {
+		
+		// Load ID
+		$id = $item->$id_field;	
+		
+	}
+
 	// Load primary form
 	$form_array = drupal_get_form('cirro_core_entity_edit_form', $info, $schema, $type, $item, $action);
 	$form = drupal_render($form_array);
@@ -54,16 +62,97 @@ function cirro_core_entity_edit_page($type, $item, $action = NULL) {
 				
 				// Add to children markup
 				$children .= $child_form;
-				
-				
+
 			}
 		
 		
 		} else {
 			
 			// Edit page
-			
-			
+
+			// Loop through children
+			foreach ( $children_types as $child_type => $child_label ) {
+
+				// Load entity info
+				$info = entity_get_info($child_type);
+				$table = $info['base table'];
+
+				// Query children
+				$query_string = "
+					SELECT id, title, type, weight
+					FROM $table
+					ORDER BY weight
+				";
+	
+				$query = db_query($query_string);
+
+				$child_items = $query->fetchAll();
+
+				// Count children
+				$child_count = count($child_items);
+
+				// Build children weights form
+				$children_form_options = array(
+					'parent_id' => $id,
+					'parent_type' => $type,
+					'child_items' => $child_items,
+				);
+				$children_form_id = "cirro_core_{$child_type}_children_weights";
+				$children_weights = drupal_get_form($children_form_id, $children_form_options);
+
+				$children_weight_form = drupal_render($children_weights);
+
+				// Check for limit
+				if ( isset($info['limit']) && $info['limit'] >= $child_count ) {
+					
+					// Replace add button with limit warning
+					$add_button = "
+						<div class=\"alert alert-info\">
+							You have reached the upload limit of {$info['limit']} items.<br />
+							Delete some items in order to add more.
+						</div>
+					";
+					
+				} else {
+
+					// Build add button
+					$button = "
+						<button class=\"btn btn-primary\">
+							Add {$info['label']}
+						</button>
+					";
+					$l_options = array(
+						'html' => TRUE,
+						'query' => array(
+							'destination' => "admin/dash/$type/$id/edit",
+						),
+					);
+					$add_button = l($button, "admin/dash/$child_type/add", $l_options);
+					
+				}
+				
+				// Build link to add form
+				
+				// Build children form element
+				$children_form = "
+					<div class=\"children-form-wrapper box-white\">
+						<div class=\"title-wrapper\">
+							<h2>{$info['label']}</h2>
+						</div>
+						<div class=\"weight-wrapper\" />
+							$children_weight_form
+						</div>
+						<div class=\"line-seperator\"></div>
+						<div class=\"add-wrapper\">
+							$add_button
+						</div>
+					</div>
+				";
+
+				// Add to imgs markup
+				$children .= $children_form;
+				
+			}
 			
 		}
 		
@@ -99,9 +188,6 @@ function cirro_core_entity_edit_page($type, $item, $action = NULL) {
 			}
 
 		} else {
-
-			// Load ID
-			$id = $item->$id_field;	
 
 			// Loop through multi-imgs
 			foreach ( $multi_imgs as $field => $info ) {
@@ -546,83 +632,87 @@ function cirro_core_weights_form_submit($form, &$form_state) {
 }
 
 /**
- * Multi Image File upload form
+ * Children weights form.
  *
- * @param $type
- *   Entity type
- * @param $field
- *   Entity field name
+ * @param $child_type
+ *   Children entity type.
+ * @param $child_items
+ *   Array of children items with id, title, weight
  */
-function cirro_core_multi_img_upload_form($form, &$form_state, $id, $type, $field) {
-
+function cirro_core_children_weight_form($form, &$form_state, $options) {
+	
 	// Init
 	$form = array();
+	$id = $options['parent_id'];
+	$type = $options['parent_type'];
+	$child_items = $options['child_items'];
+	
+	// Build weight options
+	for ( $i = -40; $i <= 40; $i++ ) {
 
-	// Parent id
+		$weight_options[$i] = $i;
+
+	}
+
+	// Add parent info to form
 	$form['parent_id'] = array(
 		'#type' => 'hidden',
 		'#value' => $id,
 	);
 
-	// Type field
 	$form['parent_type'] = array(
 		'#type' => 'hidden',
 		'#value' => $type,
 	);
 
-	// Field name
-	$form['parent_field'] = array(
-		'#type' => 'hidden',
-		'#value' => $field,
-	);
+	// Init items array
+	$form['items'] = array();
+	$form['items']['#tree'] = TRUE;
+
+	// Loop through child items
+	foreach ( $child_items as $item ) {
+		
+		// Init
+		$id = $item->id;
+		$item_type = $item->type;
+		$fields = array();
+
+		// Add ID
+		$fields['id'] = array(
+			'#type' => 'hidden',
+			'#value' => $id,
+		);
+
+		// Build link
+		$link = l($item->title, "admin/dash/$item_type/$id/edit");
+		
+		$fields['link'] = array(
+			'#markup' => $link,
+		);
+		
+		// Weight
+		$fields['weight'] = array(
+			'#type' => 'select',
+			'#title' => 'Weight',
+			'#default_value' => $item->weight,
+			'#options' => $weight_options,
+		);
+		
+		// Add item to form items
+		$form['items'][$id] = $fields;
 	
-	// Weight
-	$form['weight'] = array(
-		'#type' => 'hidden',
-		'#value' => 40,
-	);
-
-	// File field
-	$form['fid'] = array(
-		'#type' => 'managed_file',
-		'#upload_location' => "public://multi_imgs/$type/$field",
-		'#upload_validators' => array(
-			'file_validate_extensions' => array('jpg jpeg gif png'),
-			'file_validate_size' => array(1048576),
-		),
-	);
-
-	// Submit
-	$form['submit'] = array(
-		'#type' => 'submit',
-		'#value' => 'Save Img',
-	);
-
-	return $form;
-}
-
-/**
- * Multi Image File Upload submit.
- */
-function cirro_core_multi_img_upload_form_submit($form, &$form_state) {
-
-	// Init
-	$fields = $form_state['values'];
-
-
-	// Cast fields obj
-	$fields_obj = (object) $fields;
-
-	// Attempt item create
-	if ( ( $item = entity_get_controller('multi_img')->create($fields_obj) ) !== FALSE ) {
-
-		drupal_set_message('Image created');
-
-	} else {
-
-		drupal_set_message('Image creation failure', 'error');
-
 	}
+	if ( !empty($child_items) ) {
+dsm('SUBMIT');
+		// Add submit
+		$form['submit'] = array(
+			'#type' => 'submit',
+			'#value' => "Update Order",
+		);
+		
+	}
+	
+	return $form;
 
 }
 
@@ -780,7 +870,7 @@ function cirro_core_multi_img_weight_form($form, &$form_state, $options) {
 
 	}
 
-	if ( !empty($img) ) {
+	if ( !empty($imgs) ) {
 	
 		// Add submit
 		$form['submit'] = array(
@@ -817,5 +907,86 @@ function cirro_core_multi_img_weight_form_submit($form, &$form_state) {
 
 	// Display success message
 	drupal_set_message('Images updated');
+
+}
+
+/**
+ * Multi Image File upload form
+ *
+ * @param $type
+ *   Entity type
+ * @param $field
+ *   Entity field name
+ */
+function cirro_core_multi_img_upload_form($form, &$form_state, $id, $type, $field) {
+
+	// Init
+	$form = array();
+
+	// Parent id
+	$form['parent_id'] = array(
+		'#type' => 'hidden',
+		'#value' => $id,
+	);
+
+	// Type field
+	$form['parent_type'] = array(
+		'#type' => 'hidden',
+		'#value' => $type,
+	);
+
+	// Field name
+	$form['parent_field'] = array(
+		'#type' => 'hidden',
+		'#value' => $field,
+	);
+	
+	// Weight
+	$form['weight'] = array(
+		'#type' => 'hidden',
+		'#value' => 40,
+	);
+
+	// File field
+	$form['fid'] = array(
+		'#type' => 'managed_file',
+		'#upload_location' => "public://multi_imgs/$type/$field",
+		'#upload_validators' => array(
+			'file_validate_extensions' => array('jpg jpeg gif png'),
+			'file_validate_size' => array(1048576),
+		),
+	);
+
+	// Submit
+	$form['submit'] = array(
+		'#type' => 'submit',
+		'#value' => 'Save Img',
+	);
+
+	return $form;
+}
+
+/**
+ * Multi Image File Upload submit.
+ */
+function cirro_core_multi_img_upload_form_submit($form, &$form_state) {
+
+	// Init
+	$fields = $form_state['values'];
+
+
+	// Cast fields obj
+	$fields_obj = (object) $fields;
+
+	// Attempt item create
+	if ( ( $item = entity_get_controller('multi_img')->create($fields_obj) ) !== FALSE ) {
+
+		drupal_set_message('Image created');
+
+	} else {
+
+		drupal_set_message('Image creation failure', 'error');
+
+	}
 
 }
