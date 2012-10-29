@@ -5,6 +5,70 @@
  */
 
 /**
+ * Build breadcrumb array reverse recursively in case of children.
+ */
+function cirro_core_build_breadcrumb($item) {
+	
+	// Init
+	$breadcrumb = array();
+	$parents = array();
+	
+	// Check for title field
+	if ( isset($item->title) ) {
+		
+		$current_title = $item->title;
+		
+	} else {
+		
+		// Use type label instead
+		$current_title = $item->type_label;	
+		
+	}
+	
+	// Build default admin and dashboard links
+	$breadcrumb[] = l('Dashboard', 'admin/dash');
+		
+	// Recurse through parent layers
+	while ( isset($item->parent_type) ) {
+		
+		// Load parent item
+		$parent_item = cirro_core_single_load($item->parent_id, $item->parent_type);
+		
+		// Check for title field
+		if ( isset($parent_item->title) ) {
+			
+			$title = $parent_item->title;
+			
+		} else {
+			
+			// Use parent item type label instead
+			$title = $parent_item->type_label;
+			
+		}
+		
+		// Create edit link for breadcrumb
+		$parent_url = "admin/dash/{$parent_item->type}/{$parent_item->id}/edit";
+		$parent_link =  l($title, $parent_url);
+		
+		// Prepend on pareants array
+		array_unshift($parents, $parent_link);
+		
+		// Replace item with parent item for recursion
+		$item = $parent_item;
+		
+	}
+
+	// Merge parents into breadcrumb
+	$breadcrumb = array_merge($breadcrumb, $parents);
+
+	// Add plain text for current page
+	$breadcrumb[] = $current_title;
+	
+	return $breadcrumb;
+	
+}
+
+/**
  * Add/Edit form page callback.
  */
 function cirro_core_entity_edit_page($type, $item, $action = NULL) {
@@ -17,6 +81,11 @@ function cirro_core_entity_edit_page($type, $item, $action = NULL) {
 	$children = '';
 	$imgs = '';
 
+	// Replace breadcrumb
+	$breadcrumb = cirro_core_build_breadcrumb($item);
+	
+	drupal_set_breadcrumb($breadcrumb);
+
 	// Check for add
 	if ( $item !== 'add' ) {
 		
@@ -26,7 +95,14 @@ function cirro_core_entity_edit_page($type, $item, $action = NULL) {
 	}
 
 	// Load primary form
-	$form_array = drupal_get_form('cirro_core_entity_edit_form', $info, $schema, $type, $item, $action);
+	$edit_options = array(
+		'info' => $info,
+		'schema' => $schema,
+		'type' => $type,
+		'item' => $item,
+		'action' => $action,
+	);
+	$form_array = drupal_get_form('cirro_core_entity_edit_form', $edit_options);
 	$form = drupal_render($form_array);
 
 	// Add form to html
@@ -74,17 +150,24 @@ function cirro_core_entity_edit_page($type, $item, $action = NULL) {
 			foreach ( $children_types as $child_type => $child_label ) {
 
 				// Load entity info
-				$info = entity_get_info($child_type);
-				$table = $info['base table'];
+				$child_info = entity_get_info($child_type);
+				$table = $child_info['base table'];
 
 				// Query children
 				$query_string = "
 					SELECT id, title, type, weight
 					FROM $table
-					ORDER BY weight
+					WHERE parent_type = :parent_type
+					AND parent_id = :parent_id
+					ORDER BY weight, created
 				";
 	
-				$query = db_query($query_string);
+				$query_options = array(
+					':parent_type' => $type,
+					':parent_id' => $id
+				);
+	
+				$query = db_query($query_string, $query_options);
 
 				$child_items = $query->fetchAll();
 
@@ -95,6 +178,7 @@ function cirro_core_entity_edit_page($type, $item, $action = NULL) {
 				$children_form_options = array(
 					'parent_id' => $id,
 					'parent_type' => $type,
+					'child_type' => $child_type,
 					'child_items' => $child_items,
 				);
 				$children_form_id = "cirro_core_{$child_type}_children_weights";
@@ -115,19 +199,17 @@ function cirro_core_entity_edit_page($type, $item, $action = NULL) {
 					
 				} else {
 
-					// Build add button
-					$button = "
-						<button class=\"btn btn-primary\">
-							Add {$info['label']}
-						</button>
-					";
-					$l_options = array(
-						'html' => TRUE,
-						'query' => array(
-							'destination' => "admin/dash/$type/$id/edit",
-						),
+					// Build create form
+					$options = array(
+						'parent_type' => $type,
+						'parent_id' => $id,
+						'child_type' => $child_type,
+						'child_label' => $child_info['label'],
 					);
-					$add_button = l($button, "admin/dash/$child_type/add", $l_options);
+
+					$create_form = drupal_get_form("cirro_core_{$child_type}_child_create", $options);
+					
+					$create_form_rendered = drupal_render($create_form);
 					
 				}
 				
@@ -137,14 +219,14 @@ function cirro_core_entity_edit_page($type, $item, $action = NULL) {
 				$children_form = "
 					<div class=\"children-form-wrapper box-white\">
 						<div class=\"title-wrapper\">
-							<h2>{$info['label']}</h2>
+							<h2>{$child_info['label']}</h2>
 						</div>
 						<div class=\"weight-wrapper\" />
 							$children_weight_form
 						</div>
 						<div class=\"line-seperator\"></div>
 						<div class=\"add-wrapper\">
-							$add_button
+							$create_form_rendered
 						</div>
 					</div>
 				";
@@ -241,7 +323,7 @@ function cirro_core_entity_edit_page($type, $item, $action = NULL) {
 
 					// Load forms
 					$upload_form_array = drupal_get_form(
-						'cirro_core_multi_img_upload_form',
+						"cirro_core_{$type}_{$field}_multi_img_upload",
 						$id,
 						$type,
 						$field
@@ -310,10 +392,15 @@ function cirro_core_entity_edit_page($type, $item, $action = NULL) {
  * @return
  *   Form array
  */
-function cirro_core_entity_edit_form($form, &$form_state, $entity_info, $schema, $type, $item, $action = NULL) {
+function cirro_core_entity_edit_form($form, &$form_state, $options) {
 
 	// Init
 	$form = array();
+	$entity_info = $options['info'];
+	$schema = $options ['schema'];
+	$type = $options['type'];
+	$item = $options['item'];
+	$action = $options['action'];
 	$entity_label = $entity_info['label'];
 	$base_table = $entity_info['base table'];
 	$id_field = $entity_info['entity keys']['id'];
@@ -459,14 +546,40 @@ function cirro_core_entity_delete_form($form, &$form_state, $type, $item) {
 	$schema = drupal_get_schema($base_table);
 	$primary_key = reset($schema['primary key']);
 	$id = $item->$primary_key;
-	$name = "<em>$entity_label Item</em>";
+	$title = $entity_label;
+	$children = '';
+	$yes = 'Yes, I am sure. Delete this item forever!';
 
 	// Check for item name
-	if ( isset($item->name) ) {
+	if ( isset($item->title) ) {
 
 		// Load item name
-		$name = "<em>{$item->name}</em>";
+		$title = $item->title;
 
+	}
+
+	// Get breadcrumb
+	$breadcrumb = cirro_core_build_breadcrumb($item);
+	
+	// Replace item text with link
+	array_pop($breadcrumb);
+	$url = "admin/dash/{$item->type}/$id/edit";
+	$breadcrumb[] = l($title, $url);
+	
+	// Add delete text
+	$breadcrumb[] = 'DELETE';
+	
+	drupal_set_breadcrumb($breadcrumb);
+	
+	// Check for children
+	if ( isset($entity_info['children']) ) {
+		
+		$children = "
+			<div class=\"alert alert-error\">
+				<strong>This will also delete ALL child items!</strong>
+			</div>
+		";
+		
 	}
 
 	// Add type to form
@@ -482,14 +595,16 @@ function cirro_core_entity_delete_form($form, &$form_state, $type, $item) {
 	);
 
 	// Build confirm args
-	$question = "Confirm Delete: $name";
+	$question = "Confirm Delete: $title";
 	$path = "admin/dash/$type/$id/edit";
 	$description = "
-		Are you sure you want to delete <strong>$name</strong>?<br />
-		This cannot be undone!";
+		Are you sure you want to delete <strong>$title</strong>?<br />
+		<div class=\"alert\">This cannot be undone!</div>
+		$children	
+	";
 
 	// Build confirm form
-	$form = confirm_form($form, $question, $path, $description);
+	$form = confirm_form($form, $question, $path, $description, $yes);
 
 	return $form;
 
@@ -522,7 +637,7 @@ function cirro_core_entity_delete_form_submit($form, &$form_state) {
 /**
  * Weights reorder form.
  */
-function cirro_core_weights_form($form, &$form_state, $type) {
+function cirro_core_weight_form($form, &$form_state, $type) {
 	
 	// Init
 	$info = entity_get_info($type);
@@ -607,7 +722,7 @@ function cirro_core_weights_form($form, &$form_state, $type) {
 /**
  * Item weights form submit.
  */
-function cirro_core_weights_form_submit($form, &$form_state) {
+function cirro_core_weight_form_submit($form, &$form_state) {
 	
 	// Init
 	$values = $form_state['values'];
@@ -632,19 +747,107 @@ function cirro_core_weights_form_submit($form, &$form_state) {
 }
 
 /**
+ * Create child item.
+ *
+ * @param array $options
+ *   parent_id:
+ *   parent_type:
+ *   child_type:
+ *   child_label:
+ */
+function cirro_core_child_create_form($form, &$form_state, $options) {
+	
+	// Init
+	$form = array();
+	$child_label = $options['child_label'];
+
+	// Add parent and type info
+	$form['parent_id'] = array(
+		'#type' => 'hidden',
+		'#value' => $options['parent_id'],
+	);
+	
+	$form['parent_type'] = array(
+		'#type' => 'hidden',
+		'#value' => $options['parent_type'],
+	);
+	
+	$form['type'] = array(
+		'#type' => 'hidden',
+		'#value' => $options['child_type'],
+	);
+	
+	$form['type_label'] = array(
+		'#type' => 'hidden',
+		'#value' => $child_label,
+	);
+	
+	// Title field
+	$form['title'] = array(
+		'#type' => 'textfield',
+		'#title' => 'Title',
+		'#required' => TRUE,
+		'#default_value' => '',
+	);
+	
+	// Submit
+	$form['submit'] = array(
+		'#type' => 'submit',
+		'#value' => "Create $child_label",
+	);	
+
+	return $form;
+	
+}
+
+/**
+ * Create child form submit.
+ */
+function cirro_core_child_create_form_submit($form, &$form_state) {
+	
+	// Init
+	$values = $form_state['values'];
+	$child_type = $values['type'];
+	$child_label = $values['type_label'];
+	$parent_type = $values['parent_type'];
+	$parent_id = $values['parent_id'];
+	$controller = entity_get_controller($child_type);
+
+	// Cast fields object
+	$fields_obj = (object) $values;
+	
+	// Attempt create
+	if ( ( $new_item = $controller->create($fields_obj) ) !== FALSE ) {
+		
+		// Set success message
+		drupal_set_message("$child_label created.");
+		
+	} else {
+		
+		// Set Error
+		drupal_set_message('There was an error creating the child item.', 'error');	
+		
+	}
+	
+}
+
+/**
  * Children weights form.
  *
- * @param $child_type
- *   Children entity type.
- * @param $child_items
- *   Array of children items with id, title, weight
+ * @param array $options
+ *   parent_id:
+ *   parent_type:
+ *   child_type:
+ *   child_items: array of loaded child objects
+ *
  */
 function cirro_core_children_weight_form($form, &$form_state, $options) {
 	
 	// Init
 	$form = array();
-	$id = $options['parent_id'];
-	$type = $options['parent_type'];
+	$parent_id = $options['parent_id'];
+	$parent_type = $options['parent_type'];
+	$child_type = $options['child_type'];
 	$child_items = $options['child_items'];
 	
 	// Build weight options
@@ -657,12 +860,17 @@ function cirro_core_children_weight_form($form, &$form_state, $options) {
 	// Add parent info to form
 	$form['parent_id'] = array(
 		'#type' => 'hidden',
-		'#value' => $id,
+		'#value' => $parent_id,
 	);
 
 	$form['parent_type'] = array(
 		'#type' => 'hidden',
-		'#value' => $type,
+		'#value' => $parent_type,
+	);
+	
+	$form['child_type'] = array(
+		'#type' => 'hidden',
+		'#value' => $child_type,
 	);
 
 	// Init items array
@@ -684,10 +892,33 @@ function cirro_core_children_weight_form($form, &$form_state, $options) {
 		);
 
 		// Build link
-		$link = l($item->title, "admin/dash/$item_type/$id/edit");
+		$options = array(
+			'attributes' => array(
+				'title' => 'Edit Item',
+			),
+		);
+		$link = l($item->title, "admin/dash/$item_type/$id/edit", $options);
 		
 		$fields['link'] = array(
 			'#markup' => $link,
+		);
+		
+		// Build delete link
+		$fields['delete'] = array(
+			'#markup' => l(
+				'<i class="icon-remove"></i> ',
+				"admin/dash/$child_type/{$id}/delete",
+				array(
+					'html' => TRUE,
+					'attributes' => array(
+						'class' => array('btn', 'btn-small'),
+						'title' => 'Remove Item',
+					),
+					'query' => array(
+						'destination' => "admin/dash/$parent_type/$parent_id/edit"
+					),
+				)
+			),
 		);
 		
 		// Weight
@@ -703,7 +934,7 @@ function cirro_core_children_weight_form($form, &$form_state, $options) {
 	
 	}
 	if ( !empty($child_items) ) {
-dsm('SUBMIT');
+
 		// Add submit
 		$form['submit'] = array(
 			'#type' => 'submit',
@@ -713,6 +944,33 @@ dsm('SUBMIT');
 	}
 	
 	return $form;
+
+}
+
+/**
+ * Children weights submit
+ */
+function cirro_core_children_weight_form_submit($form, &$form_state) {
+
+	// Init
+	$values = $form_state['values'];
+	$child_type = $values['child_type'];
+
+	$objects = array();
+
+	// Loop through imgs
+	foreach ( $values['items'] as $id => $data ) {
+
+		// Cast fields object
+		$fields_obj = (object) $data;
+
+		// Update img
+		entity_get_controller($child_type)->update($fields_obj);
+
+	}
+
+	// Display success message
+	drupal_set_message('Children Order Updated');
 
 }
 

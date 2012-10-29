@@ -69,6 +69,7 @@ class cirroCoreController extends DrupalDefaultEntityController {
 			if (
 				isset($info['form']) &&
 				$info['form']['#type'] == 'managed_file' &&
+				isset($new_obj->$field) &&
 				$new_obj->$field !== 0
 			) {
 				
@@ -236,10 +237,12 @@ class cirroCoreController extends DrupalDefaultEntityController {
 	  
 	  // Init
 	  $type = $this->entityType;
-		$table = $this->entityInfo['base table'];
-	  $id_name = $this->entityInfo['entity keys']['id'];
+	  $info = $this->entityInfo;
+		$table = $info['base table'];
+	  $id_name = $info['entity keys']['id'];
 	  $schema = drupal_get_schema($table);
 	  $file_fields = array();
+	  $children = array();
 
 	  // Confirm arg is array
 	  if ( !is_array($ids) ) {
@@ -248,6 +251,19 @@ class cirroCoreController extends DrupalDefaultEntityController {
 			$error = "Entity Delete Mulitple: Arg must be array.";
 			watchdog('cirroCoreController', $error, array(), WATCHDOG_ERROR);			
 			throw new Exception($error);
+		  
+	  }
+	  
+	  // Check for children
+	  if ( isset($info['children']) ) {
+
+		  // Loop through children
+		  foreach ( $info['children'] as $child_type => $child_label ) {
+
+			  // Find and delete children recursively
+			  $this->find_children($child_type, $type, $ids);
+			  
+		  }
 		  
 	  }
 
@@ -340,5 +356,83 @@ class cirroCoreController extends DrupalDefaultEntityController {
 		return TRUE;
  
   } // deleteMultiple()
+  
+  /**
+   * Find children when given parent_type and parent_id.
+   *
+   * @param $child_type
+   *   Type of items to look for and check for children
+   * @param $parent_type
+   *   Mach name of parent type
+   * @param $parent_ids
+   *   Array of parent IDs to look for
+   *
+   * @return
+   *   Index array of IDs that match.
+   */
+ private function find_children($child_type, $parent_type, $parent_ids) {
+
+	 // Init
+	 $child_info = entity_get_info($child_type);
+	 $table = $child_info['base table'];
+	 
+	 // Query child IDS
+	 $query_string = "
+	 	SELECT id
+	 		FROM $table
+	 		WHERE parent_type = :parent_type
+	 		AND parent_id IN ( :parent_ids )
+	 ";
+
+	 $query_options = array(
+	 	':parent_type' => $parent_type,
+	 	':parent_ids' => $parent_ids,
+	 );
+	 
+	 $query = db_query($query_string, $query_options);
+	 
+	 $child_ids = $query->fetchCol();
+	 
+	 // Check for results
+	 if ( empty($child_ids) ) return TRUE;
+	 
+	 if ( isset($child_info['children']) ) {
+		 
+		 // Loop through children types and look for onese that match
+		 foreach ( $child_info['children'] as $sub_child_type => $sub_child_label ) {
+			 
+			 // Recurse
+			 $this->find_children($sub_child_type, $child_type, $child_ids);
+			 
+		 }
+		 
+	 }
+	 
+	 // Delete child ids
+	 db_delete($table)
+	 	->condition('id', $child_ids)
+	 	->execute();
+	 
+	 return TRUE;
+	 
+ }
 
 } // CirroCoreController
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
