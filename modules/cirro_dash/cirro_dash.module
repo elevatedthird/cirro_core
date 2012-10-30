@@ -346,22 +346,30 @@ function cirro_dash_build() {
 /**
  * Admin Dash filter form. Allows user to filter types on their dashboard.
  */
-function cirro_dash_filter($form, $form_state, $types) {
+function cirro_dash_filter($form, $form_state, $types_info) {
 
 	// Init
 	$form = array();
+	$types = array();
 	
 	// Get default value
 	if ( isset($_SESSION['cirro_dash_type_filter']) ) {
-		
+
 		// Load from session var
 		$default = $_SESSION['cirro_dash_type_filter'];
 
 	} else {
-		
+
 		// Show All
 		$default = '*';
-		
+
+	}
+
+	// Loop through types_info
+	foreach ( $types_info as $type_mach => $info ) {
+
+		$types[$type_mach] = $info['label'];
+
 	}
 
 	// Sort types
