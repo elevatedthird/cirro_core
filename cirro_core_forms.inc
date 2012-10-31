@@ -12,57 +12,71 @@ function cirro_core_build_breadcrumb($item) {
 	// Init
 	$breadcrumb = array();
 	$parents = array();
-	
-	// Check for title field
-	if ( isset($item->title) ) {
-		
-		$current_title = $item->title;
-		
-	} else {
-		
-		// Use type label instead
-		$current_title = $item->type_label;	
-		
-	}
-	
-	// Build default admin and dashboard links
+
+	// Build default dashboard link
 	$breadcrumb[] = l('Dashboard', 'admin/dash');
-		
-	// Recurse through parent layers
-	while ( isset($item->parent_type) ) {
-		
-		// Load parent item
-		$parent_item = cirro_core_single_load($item->parent_id, $item->parent_type);
-		
+
+	// Check if item is an array
+	if ( is_array($item) ) {
+
 		// Check for title field
-		if ( isset($parent_item->title) ) {
+		if ( isset($item->title) ) {
 			
-			$title = $parent_item->title;
+			$current_title = $item->title;
 			
 		} else {
 			
-			// Use parent item type label instead
-			$title = $parent_item->type_label;
+			// Use type label instead
+			$current_title = $item->type_label;	
 			
 		}
+			
+		// Recurse through parent layers
+		while ( isset($item->parent_type) ) {
+			
+			// Load parent item
+			$parent_item = cirro_core_single_load($item->parent_id, $item->parent_type);
+			
+			// Check for title field
+			if ( isset($parent_item->title) ) {
+				
+				$title = $parent_item->title;
+				
+			} else {
+				
+				// Use parent item type label instead
+				$title = $parent_item->type_label;
+				
+			}
+			
+			// Create edit link for breadcrumb
+			$parent_url = "admin/dash/{$parent_item->type}/{$parent_item->id}/edit";
+			$parent_link =  l($title, $parent_url);
+			
+			// Prepend on pareants array
+			array_unshift($parents, $parent_link);
+			
+			// Replace item with parent item for recursion
+			$item = $parent_item;
+			
+		}
+	
+		// Merge parents into breadcrumb
+		$breadcrumb = array_merge($breadcrumb, $parents);
 		
-		// Create edit link for breadcrumb
-		$parent_url = "admin/dash/{$parent_item->type}/{$parent_item->id}/edit";
-		$parent_link =  l($title, $parent_url);
+		// Add plain text for current page
+		$breadcrumb[] = $current_title;
+	
+	} else {
 		
-		// Prepend on pareants array
-		array_unshift($parents, $parent_link);
+		// Type label pass in place of item
 		
-		// Replace item with parent item for recursion
-		$item = $parent_item;
+		$type_label = $item;
+		
+		// Add type label to breadcrumb
+		$breadcrumb[] = "Add $type_label";
 		
 	}
-
-	// Merge parents into breadcrumb
-	$breadcrumb = array_merge($breadcrumb, $parents);
-
-	// Add plain text for current page
-	$breadcrumb[] = $current_title;
 	
 	return $breadcrumb;
 	
@@ -76,15 +90,12 @@ function cirro_core_entity_edit_page($type, $item, $action = NULL) {
 	// Init
 	$html = '';
 	$info = entity_get_info($type);
+	$label = $info['label'];
 	$schema = drupal_get_schema($info['base table']);
 	$id_field = $info['entity keys']['id'];
 	$children = '';
 	$imgs = '';
-
-	// Replace breadcrumb
-	$breadcrumb = cirro_core_build_breadcrumb($item);
-	
-	drupal_set_breadcrumb($breadcrumb);
+	$breadcrumb_item = $item;
 
 	// Check for add
 	if ( $item !== 'add' ) {
@@ -92,7 +103,17 @@ function cirro_core_entity_edit_page($type, $item, $action = NULL) {
 		// Load ID
 		$id = $item->$id_field;	
 		
+	} else {
+		
+		// Pass type to breadcrumb
+		$breadcrumb_item = $label;
+		
 	}
+	
+	// Replace breadcrumb
+	$breadcrumb = cirro_core_build_breadcrumb($breadcrumb_item);
+	
+	drupal_set_breadcrumb($breadcrumb);
 
 	// Load primary form
 	$edit_options = array(
