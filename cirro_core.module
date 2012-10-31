@@ -235,21 +235,6 @@ function cirro_core_access_callback($type, $action) {
 }
 
 /**
- * Basic numeric form element validation.
- */
-function cirro_core_numeric_element_validate($element, &$form_state, $form) {
-
-	// Check for numeric value
-	if ( !is_numeric($element['#value']) ) {
-		
-		// Set error on element
-		form_error($element, 'Value must be numeric');
-
-	}
-
-}
-
-/**
  * Implements hook_forms().
  *
  * Maps multiple form_ids to single form validate/submit shiz.
@@ -304,7 +289,7 @@ function cirro_core_forms($form_id, $args) {
 				);
 				
 				// Add multi_img upload form id
-				$forms["cirro_core_{$mach_name}_{$field_name}_mulit_img_upload"] = array(
+				$forms["cirro_core_{$mach_name}_{$field_name}_multi_img_upload"] = array(
 
 					'callback' => 'cirro_core_multi_img_upload_form',
 
@@ -315,313 +300,22 @@ function cirro_core_forms($form_id, $args) {
 		}
 
 	}
-	
+
 	return $forms;
 
 }
 
-/**
- * Theme item weights forms.
- *
- * @param $variables
- *   Themeing variables array
+/** 
+ * Include multi_img tools
  */
-function theme_cirro_core_weight_form($variables) {
-	
-	// Init
-	$output = '';
-	$rows = array();
-	
-	// Load form array
-	$form = $variables['form'];
-	
-	// Activate tabledrag shiz
-	drupal_add_tabledrag('draggable-table', 'order', 'sibling', 'weight-group');
-	
-	// Loop through form Elements
-	foreach ( element_children($form['items']) as $key ) {
-		
-		// Init
-		$element = array();
-		$data = '';
-		$row = array();
-		
-		// Skip none numeric keys
-		if ( !is_numeric($key) ) continue;
-		
-		// Load element
-		$element = &$form['items'][$key];
-		
-		// Add class to weight field
-		$element['weight']['#attributes']['class'] = array('weight-group');
-		
-		// Put data fields together
-		$data .= drupal_render($element['id']);
-		
-		// Build row
-		$row = array();
-		$row[] = drupal_render($element['name']) . $data;
-		$row[] = drupal_render($element['weight']);
-		
-		// Add to rows
-		$rows[] = array( 'data' => $row, 'class' => array('draggable'));
-
-	}
-	
-	// Define headers
-	$headers = array(
-		'Name',
-		'Weight',
-	);
-
-	// Define table vars
-	$table_vars = array(
-		'header' => $headers,
-		'rows' => $rows,
-		'attributes' => array(
-			'id' => 'draggable-table',
-			'class' => array(
-				'table',
-				'table-bordered',
-				'table-striped',
-			),
-		),
-		'caption' => 'Drag and Drop to change order',
-		'colgroups' => array(),
-		'sticky' => FALSE,
-		'empty' => 'No Items Found',
-	);
-	
-	// Add table to output
-	$table = theme_table($table_vars);
-	
-	// Render remaining form elements
-	$form_children = drupal_render_children($form);
-	
-	// Build output with wrapper
-	$output = "
-		<div class=\"span8\">
-			$table
-			$form_children
-		</div>
-	";
-	
-	return $output;
-
-}
+module_load_include('inc', 'cirro_core', 'cirro_core_multi_img');
 
 /**
- * Theme children weights forms.
- *
- * @param $variables
- *   Themeing variables array
+ * Include children tools
  */
-function theme_cirro_core_children_weight_form($variables) {
-
-	// Init
-	$output = '';
-	$rows = array();
-	
-	// Load form array
-	$form = $variables['form'];
-	
-	// Activate tabledrag shiz
-	drupal_add_tabledrag('draggable-table', 'order', 'sibling', 'weight-group');
-	
-	// Loop through form Elements
-	foreach ( element_children($form['items']) as $key ) {
-		
-		// Init
-		$element = array();
-		$data = '';
-		$row = array();
-		
-		// Skip none numeric keys
-		if ( !is_numeric($key) ) continue;
-		
-		// Load element
-		$element = &$form['items'][$key];
-		
-		// Add class to weight field
-		$element['weight']['#attributes']['class'] = array('weight-group');
-		
-		// Put data fields together
-		$data .= drupal_render($element['link']);
-		$data .= drupal_render($element['id']);
-		
-		// Build row
-		$row = array();
-		$row[] = $data;
-		$row[] = drupal_render($element['weight']);
-		$row[] = drupal_render($element['delete']);
-		
-		// Add to rows
-		$rows[] = array( 'data' => $row, 'class' => array('draggable'));
-
-	}
-	
-	// Define headers
-	$headers = array(
-		'Edit',
-		'Weight',
-		'',
-	);
-
-	// Define table vars
-	$table_vars = array(
-		'header' => $headers,
-		'rows' => $rows,
-		'attributes' => array(
-			'id' => 'draggable-table',
-			'class' => array(
-				'table',
-				'table-bordered',
-				'table-striped'
-			),
-		),
-		'caption' => 'Drag and Drop to change order',
-		'colgroups' => array(),
-		'sticky' => FALSE,
-		'empty' => 'No Children found',
-	);
-	
-	// Add table to output
-	$output = theme_table($table_vars);
-	
-	// Render remaining form elements
-	$output .= drupal_render_children($form);	
-	
-	return $output;
-
-}
-
+module_load_include('inc', 'cirro_core', 'cirro_core_children');
 
 /**
- * Theme multi image weights forms.
- *
- * @param $variables
- *   Themeing variables array
+ * Include top level weight tools
  */
-function theme_cirro_core_multi_img_weight_form($variables) {
-	
-	// Init
-	$output = '';
-	$rows = array();
-	
-	// Load form array
-	$form = $variables['form'];
-	
-	// Activate tabledrag shiz
-	drupal_add_tabledrag('draggable-table', 'order', 'sibling', 'weight-group');
-	
-	// Loop through form Elements
-	foreach ( element_children($form['imgs']) as $key ) {
-		
-		// Init
-		$element = array();
-		$data = '';
-		$row = array();
-		
-		// Skip none numeric keys
-		if ( !is_numeric($key) ) continue;
-		
-		// Load element
-		$element = &$form['imgs'][$key];
-		
-		// Add class to weight field
-		$element['weight']['#attributes']['class'] = array('weight-group');
-		
-		// Put data fields together
-		$data .= drupal_render($element['id']);
-		$data .= drupal_render($element['img_title']);
-		$data .= drupal_render($element['img_alt']);
-		
-		// Build row
-		$row = array();
-		$row[] = drupal_render($element['thumbnail']);
-		$row[] = $data;
-		$row[] = drupal_render($element['weight']);
-		$row[] = drupal_render($element['delete_link']);
-		
-		// Add to rows
-		$rows[] = array( 'data' => $row, 'class' => array('draggable'));
-
-	}
-	
-	// Define headers
-	$headers = array(
-		'File',
-		'Data',
-		'Weight',
-		'',
-	);
-
-	// Define table vars
-	$table_vars = array(
-		'header' => $headers,
-		'rows' => $rows,
-		'attributes' => array(
-			'id' => 'draggable-table',
-			'class' => array(
-				'table',
-				'table-bordered',
-				'table-striped'
-			),
-		),
-		'caption' => 'Drag and Drop to change order',
-		'colgroups' => array(),
-		'sticky' => FALSE,
-		'empty' => 'No Images found',
-	);
-	
-	// Add table to output
-	$output = theme_table($table_vars);
-	
-	// Render remaining form elements
-	$output .= drupal_render_children($form);	
-	
-	return $output;
-
-}
-
-/**
- * Multi-image load helper function
- */
- function cirro_core_multi_img_load_helper($type, $id, $field){
-	 
-	 // Init stuff here
-	 $imgs = array();
-	 
-		
-		// Query items
-		$img_query_string = "
-		SELECT m.img_alt, m.img_title, f.uri, f.fid 
-	  	FROM cirro_multi_img AS m
-	  	JOIN file_managed AS f
-	  		ON m.fid = f.fid
-	  	WHERE parent_id = :id
-	  	AND parent_type = :type
-	  	AND parent_field = :field
-	  	ORDER BY m.weight
-		";
-		
-		$placeholders = array(
-			':id' => $id,
-			':type' => $type,
-			':field' => $field,
-		);
-		
-			$img_query = db_query($img_query_string, $placeholders);
-			$img_results = $img_query->fetchAll();
-	 
-	 // If images return url, title, alt
-	 foreach ( $img_results as $img_result ) {
-		 
-		 $img_result->url = file_create_url($img_result->uri);
-		 
-		 $imgs[] = $img_result;
- 
-	 }
-	
-	 return $imgs;	 
- }
+module_load_include('inc', 'cirro_core', 'cirro_core_weights');
