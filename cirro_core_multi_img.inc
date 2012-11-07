@@ -75,9 +75,9 @@ function cirro_core_multi_img_build_forms($item, $multi_imgs, $type, $id) {
 
 			// Build img weight form options
 			$img_weight_options = array(
-				'id' => $id,
-				'type' => $type,
-				'field' => $field,
+				'parent_id' => $id,
+				'parent_type' => $type,
+				'parent_field' => $field,
 				'imgs' => $imgs,
 			);
 
@@ -157,9 +157,9 @@ function cirro_core_multi_img_weight_form($form, &$form_state, $options) {
 
 	// Init
 	$form = array();
-	$id = $options['id'];
-	$type = $options['type'];
-	$field = $options['field'];
+	$id = $options['parent_id'];
+	$type = $options['parent_type'];
+	$field = $options['parent_field'];
 	$imgs = $options['imgs'];
 
 	// Build weight options
@@ -331,17 +331,19 @@ function cirro_core_multi_img_weight_form_submit($form, &$form_state) {
 	}
 
 	// Display success message
-	drupal_set_message('Images updated');
+	drupal_set_message('Images Updated');
 
 }
 
 /**
  * Multi Image File upload form
  *
+ * @param $id
+ *   Parent entity id
  * @param $type
- *   Entity type
+ *   Parent entity type
  * @param $field
- *   Entity field name
+ *   Parent entity field name
  */
 function cirro_core_multi_img_upload_form($form, &$form_state, $id, $type, $field) {
 
@@ -406,7 +408,7 @@ function cirro_core_multi_img_upload_form_submit($form, &$form_state) {
 	// Attempt item create
 	if ( ( $item = entity_get_controller('multi_img')->create($fields_obj) ) !== FALSE ) {
 
-		drupal_set_message('Image created');
+		drupal_set_message('Image Created');
 
 	} else {
 

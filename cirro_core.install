@@ -16,7 +16,7 @@ function cirro_core_schema() {
 
 
 	$schema['cirro_multi_img'] = array(
-		'description' => 'Base table for collection_img',
+		'description' => 'Base table for core multi_img',
 		'fields' => array(
 			
 			'id' => array(
@@ -104,6 +104,97 @@ function cirro_core_schema() {
 				'type' => 'varchar',
 				'length' => 255,
 				'not null' => 255,
+				'default' => '',
+			),
+
+		),
+
+		'primary key' => array('id'),
+
+	);
+
+	$schema['cirro_multi_file'] = array(
+		'description' => 'Base table for core multi_file',
+		'fields' => array(
+			
+			'id' => array(
+				'type' => 'serial',
+				'unsigned' => TRUE,
+				'not null' => TRUE,
+			),
+			
+			'created' => array(
+				'type' => 'int',
+				'unsigned' => TRUE,
+				'not null' => TRUE,
+				'default' => 0
+			),
+
+			'changed' => array(
+				'type' => 'int',
+				'unsigned' => TRUE,
+				'not null' => TRUE,
+				'default' => 0,
+			),
+
+			'uid' => array(
+				'type' => 'int',
+				'unsigned' => TRUE,
+			),
+				
+			'type' => array(
+				'type' => 'varchar',
+				'length' => 255,
+				'not null' => TRUE,
+				'default' => '',
+			),
+			
+			'type_label' => array(
+				'type' => 'varchar',
+				'length' => 255,
+				'not null' => TRUE,
+				'default' => '',
+			),
+
+			'title' => array(
+				'type' => 'varchar',
+				'length' => 255,
+				'not null' => TRUE,
+				'default' => '',
+			),
+
+			'weight' => array(
+				'type' => 'int',
+				'not null' => TRUE,
+				'default' => 0,
+			),
+
+			'fid' => array(
+				'type' => 'int',
+				'not null' => TRUE,
+				'unsigned' => TRUE,
+				'default' => 0,
+				'form' => array(
+					'#type' => 'managed_file',
+				),
+			),
+
+			'parent_id' => array(
+				'type' => 'int',
+				'unsigned' => TRUE,
+			),
+
+			'parent_type' => array(
+				'type' => 'varchar',
+				'length' => 255,
+				'not null' => TRUE,
+				'default' => '',
+			),
+			
+			'parent_field' => array(
+				'type' => 'varchar',
+				'length' => 255,
+				'not null' => TRUE,
 				'default' => '',
 			),
 
