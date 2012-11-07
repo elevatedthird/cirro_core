@@ -95,6 +95,7 @@ function cirro_core_entity_edit_page($type, $item, $action = NULL) {
 	$id_field = $info['entity keys']['id'];
 	$children = '';
 	$imgs = '';
+	$files = '';
 	$breadcrumb_item = $item;
 	$id = NULL;
 
@@ -142,12 +143,20 @@ function cirro_core_entity_edit_page($type, $item, $action = NULL) {
 
 	}
 
-	// Check for multi_img in schema
+	// Check for multi_img in info
 	if ( isset($info['multi_img']) ) {
 
 		// Build options
 		$imgs = cirro_core_multi_img_build_forms($item, $info['multi_img'], $type, $id);
 
+	}
+	
+	// Check for multi_file in info
+	if ( isset($info['multi_file']) ) {
+		
+		// Build files
+		$files = cirro_core_multi_file_build_forms($item, $info['multi_file'], $type, $id);
+		
 	}
 
 	// Build html
@@ -159,6 +168,7 @@ function cirro_core_entity_edit_page($type, $item, $action = NULL) {
 			<div class=\"span6\">
 				$children
 				$imgs
+				$files
 			</div>
 		</div>
 	";

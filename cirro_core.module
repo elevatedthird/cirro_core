@@ -76,6 +76,10 @@ function cirro_core_theme() {
 			'render element' => 'form',
 		),
 		
+		'cirro_core_multi_file_weight_form' => array(
+			'render element' => 'form',
+		),
+		
 	);
 
 }
@@ -88,11 +92,23 @@ function cirro_core_entity_info() {
   // Init
  	$entities = array ();
 
-  //  Create_multi_image
+  //  Create multi_image
 	$entities['multi_img'] = array(
 		'label' => t('Multiple Image'),
 		'controller class' => 'cirroCoreController',
 		'base table' => 'cirro_multi_img',
+		'fieldable' => FALSE,
+		'entity keys' => array(
+			'id' => 'id',
+		),
+		'static cache' => TRUE,
+	);
+
+	// Create multi_file
+	$entities['multi_file'] = array(
+		'label' => t('Multiple File'),
+		'controller class' => 'cirroCoreController',
+		'base table' => 'cirro_multi_file',
 		'fieldable' => FALSE,
 		'entity keys' => array(
 			'id' => 'id',
@@ -251,7 +267,7 @@ function cirro_core_forms($form_id, $args) {
 	// Loop through entities
 	foreach ( $entities as $mach_name => $info ) {
 		
-		// Check schema for children
+		// Check info for children
 		if ( isset($info['children']) ) {
 			
 			// Loop through children
@@ -275,7 +291,7 @@ function cirro_core_forms($form_id, $args) {
 			
 		}
 				
-		// Check schema for multi img
+		// Check info for multi img
 		if ( isset($info['multi_img']) ) {
 
 			// Loop through multi img fields
@@ -298,6 +314,30 @@ function cirro_core_forms($form_id, $args) {
 			}
 			
 		}
+		
+		// Check info for multi file
+		if ( isset($info['multi_file']) ) {
+			
+			// Loop through multi file fields
+			foreach ( $info['multi_file'] as $field_name => $field_data ) {
+				
+				// Add multi_file weights
+				$forms["cirro_core_{$mach_name}_{$field_name}_multi_file_weights"] = array(
+				
+					'callback' => 'cirro_core_multi_file_weight_form',
+					
+				);
+				
+				// Add multi_file upload form
+				$forms["cirro_core_{$mach_name}_{$field_name}_multi_file_upload"] = array(
+				
+					'callback' => 'cirro_core_multi_file_upload_form',
+				
+				);
+				
+			}
+			
+		}
 
 	}
 
@@ -309,6 +349,11 @@ function cirro_core_forms($form_id, $args) {
  * Include multi_img tools
  */
 module_load_include('inc', 'cirro_core', 'cirro_core_multi_img');
+
+/**
+ * Include multi_file tools
+ */
+module_load_include('inc', 'cirro_core', 'cirro_core_multi_file');
 
 /**
  * Include children tools

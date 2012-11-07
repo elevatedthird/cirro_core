@@ -11,6 +11,7 @@
  *   multi_img array from entity info
  * @param $type
  *   Entity type
+ * @param $id
  *   Item ID
  *
  * @return
