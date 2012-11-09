@@ -502,7 +502,7 @@ function theme_cirro_core_multi_file_weight_form($variables) {
  * @return
  *   Array of multi_file item objects with pre-built URL.
  */
-function cirro_core_multi_file_load_helper($type, $id, $field){
+function cirro_core_multi_file_loader($type, $id, $field){
  
  // Init stuff here
  $files = array();
@@ -511,7 +511,7 @@ function cirro_core_multi_file_load_helper($type, $id, $field){
 	// Query items
 	$file_query_string = "
 	SELECT i.title, f.uri, f.fid 
-  	FROM cirro_multi_ AS i
+  	FROM cirro_multi_file AS i
   	JOIN file_managed AS f
   		ON i.fid = f.fid
   	WHERE i.parent_id = :id

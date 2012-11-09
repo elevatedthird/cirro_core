@@ -509,7 +509,7 @@ function theme_cirro_core_multi_img_weight_form($variables) {
 /**
  * Multi-image load helper function
  */
-function cirro_core_multi_img_load_helper($type, $id, $field){
+function cirro_core_multi_img_loader($type, $id, $field){
  
  // Init stuff here
  $imgs = array();
