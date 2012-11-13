@@ -345,6 +345,30 @@ function cirro_core_forms($form_id, $args) {
 
 }
 
+/**
+ * Formate bytes values for printing.
+ *
+ * @param $bytes
+ *   Raw number of bytes
+ * @param $precision
+ *   Number of decimal places to format to
+ */
+function cirro_core_file_format_bytes($bytes, $precision = 2) { 
+
+		// Init
+    $units = array('b', 'k', 'mb', 'g', 't'); 
+
+    $bytes = max($bytes, 0); 
+    $pow = floor(($bytes ? log($bytes) : 0) / log(1024)); 
+    $pow = min($pow, count($units) - 1); 
+
+    // Uncomment one of the following alternatives
+     $bytes /= pow(1024, $pow);
+    // $bytes /= (1 << (10 * $pow)); 
+
+    return round($bytes, $precision) . $units[$pow]; 
+}
+
 /** 
  * Include multi_img tools
  */

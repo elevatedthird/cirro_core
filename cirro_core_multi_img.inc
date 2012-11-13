@@ -97,12 +97,18 @@ function cirro_core_multi_img_build_forms($item, $multi_imgs, $type, $id) {
 				
 			} else {
 
+				// Upload form options
+				$upload_form_options = array(
+					'parent_type' => $type,
+					'parent_id' => $id,
+					'parent_field' => $field,
+					'parent_field_info' => $info,
+				);
+
 				// Load forms
 				$upload_form_array = drupal_get_form(
 					"cirro_core_{$type}_{$field}_multi_img_upload",
-					$id,
-					$type,
-					$field
+					$upload_form_options
 				);
 				
 				// Render upload form
@@ -338,17 +344,79 @@ function cirro_core_multi_img_weight_form_submit($form, &$form_state) {
 /**
  * Multi Image File upload form
  *
- * @param $id
- *   Parent entity id
- * @param $type
- *   Parent entity type
- * @param $field
- *   Parent entity field name
+ * @param $options
+ *   parent_type :
+ *   parent_id :
+ *   parent_field :
+ *   parent_field_info :
+ *
  */
-function cirro_core_multi_img_upload_form($form, &$form_state, $id, $type, $field) {
+function cirro_core_multi_img_upload_form($form, &$form_state, $options) {
 
 	// Init
 	$form = array();
+	$validators = array();
+	$type = $options['parent_type'];
+	$id = $options['parent_id'];
+	$field = $options['parent_field'];
+	$info = $options['parent_field_info'];
+	$upload_desc = '';
+	
+	// Check for size limit option
+	if ( isset($info['size']) ) {
+		
+		$size = $info['size'];
+		
+		// Add file size validation to validators
+		$validators['file_validate_size'] = array($size);
+		
+		// Format size
+		$formatted_size = cirro_core_file_format_bytes($size);
+		
+		// Add to description
+		$upload_desc .= "Size limit: <strong>$formatted_size</strong><br />";
+
+	} else {
+		
+		// Add default
+		
+		$size = 1048576;
+		
+		// Add file size validation to validators
+		$validators['file_validate_size'] = array($size);
+		
+		// Format size
+		$formatted_size = cirro_core_file_format_bytes($size);
+		
+		// Add to description
+		$upload_desc .= "Size limit: <strong>$formatted_size</strong><br />";
+		
+		
+	}
+
+	// Check for extensions limitation
+	if ( isset($info['extensions']) ) {
+		
+		$extensions = $info['extensions'];
+		
+		// Add file extenstion validation to validators
+		$validators['file_validate_extensions'] = array($extensions);
+		
+		// Add to description
+		$upload_desc .= "Allowed extensions: <strong>$extensions</strong><br />";
+		
+	} else {
+		
+		$extensions = 'jpg jpeg gif png';
+		
+		// Add file extenstion validation to validators
+		$validators['file_validate_extensions'] = array($extensions);
+		
+		// Add to description
+		$upload_desc .= "Allowed extensions: <strong>$extensions</strong><br />";		
+		
+	}
+
 
 	// Parent id
 	$form['parent_id'] = array(
@@ -378,11 +446,24 @@ function cirro_core_multi_img_upload_form($form, &$form_state, $id, $type, $fiel
 	$form['fid'] = array(
 		'#type' => 'managed_file',
 		'#upload_location' => "public://multi_imgs/$type/$field",
-		'#upload_validators' => array(
-			'file_validate_extensions' => array('jpg jpeg gif png'),
-			'file_validate_size' => array(1048576),
-		),
 	);
+	
+	// Check for validators
+	if ( !empty($validators) ) {
+		
+		// Add validatros to upload field
+		$form['fid']['#upload_validators'] = $validators;
+		
+	}
+	
+	// Check for description 
+	if ( !empty($upload_desc) ) {
+		
+		// Add description to upload field
+		$form['fid']['#description'] = $upload_desc;
+		
+	}
+
 
 	// Submit
 	$form['submit'] = array(

@@ -106,12 +106,21 @@ function cirro_core_multi_file_build_forms($item, $multi_file_fields, $type, $id
 				
 			} else {
 				
+				// Upload options array
+				$upload_form_options = array(
+					'parent_type' => $type,
+					'parent_id' => $id,
+					'parent_field' => $field_name,
+					'parent_field_info' => $info,
+				);
+
+				// Check for validation options
+
+
 				// Build upload form
 				$upload_form_array = drupal_get_form(
 					"cirro_core_{$type}_{$field_name}_multi_file_upload",
-					$id,
-					$type,
-					$field_name
+					$upload_form_options
 				);
 				
 				// Render upload form
@@ -320,17 +329,53 @@ function cirro_core_multi_file_weight_form_submit($form, &$form_state) {
 /**
  * Multi File upload form
  *
- * @param $parent_id
- *   Parent entity id
- * @param $parent_type
- *   Parent entity type
- * @param $parent_field
- *   Parent entity field name
+ * @param $options
+ *   parent_type:
+ *   parent_id:
+ *   parent_field:
+ *   size: (optional) optional bit count by which to limit the file upload size
+ *   extensions: (optional) space separated list of extensions to validate
+ *
  */
-function cirro_core_multi_file_upload_form($form, &$form_state, $id, $type, $field) {
+function cirro_core_multi_file_upload_form($form, &$form_state, $options) {
 
 	// Init
 	$form = array();
+	$validators = array();
+	$type = $options['parent_type'];
+	$id = $options['parent_id'];
+	$field = $options['parent_field'];
+	$info = $options['parent_field_info'];
+	$upload_desc = '';
+	
+	// Check for size limit option
+	if ( isset($info['size']) ) {
+		
+		$size = $info['size'];
+		
+		// Add file size validation to validators
+		$validators['file_validate_size'] = array($size);
+		
+		// Format size
+		$formatted_size = cirro_core_file_format_bytes($size);
+		
+		// Add to description
+		$upload_desc .= "Size limit: <strong>$formatted_size</strong><br />";
+
+	}
+
+	// Check for extensions limitation
+	if ( isset($info['extensions']) ) {
+		
+		$extensions = $info['extensions'];
+		
+		// Add file extenstion validation to validators
+		$validators['file_validate_extensions'] = array($extensions);
+		
+		// Add to description
+		$upload_desc .= "Allowed extensions: <strong>$extensions</strong><br />";
+		
+	}
 
 	// Parent id
 	$form['parent_id'] = array(
@@ -367,10 +412,23 @@ function cirro_core_multi_file_upload_form($form, &$form_state, $id, $type, $fie
 	$form['fid'] = array(
 		'#type' => 'managed_file',
 		'#upload_location' => "public://multi_file/$type/$field",
-		'#upload_validators' => array(
-			'file_validate_size' => array(1048576),
-		),
 	);
+
+	// Check for validators
+	if ( !empty($validators) ) {
+		
+		// Add validatros to upload field
+		$form['fid']['#upload_validators'] = $validators;
+		
+	}
+	
+	// Check for description 
+	if ( !empty($upload_desc) ) {
+		
+		// Add description to upload field
+		$form['fid']['#description'] = $upload_desc;
+		
+	}
 
 	// Submit
 	$form['submit'] = array(
@@ -539,4 +597,4 @@ function cirro_core_multi_file_loader($type, $id, $field){
  }
 
  return $files;	 
-}
+} 
