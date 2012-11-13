@@ -363,9 +363,9 @@ function cirro_core_multi_img_upload_form($form, &$form_state, $options) {
 	$upload_desc = '';
 	
 	// Check for size limit option
-	if ( isset($info['size']) ) {
+	if ( isset($info['file_size']) ) {
 		
-		$size = $info['size'];
+		$size = $info['file_size'];
 		
 		// Add file size validation to validators
 		$validators['file_validate_size'] = array($size);

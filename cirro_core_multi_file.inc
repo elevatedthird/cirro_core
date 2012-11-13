@@ -333,8 +333,7 @@ function cirro_core_multi_file_weight_form_submit($form, &$form_state) {
  *   parent_type:
  *   parent_id:
  *   parent_field:
- *   size: (optional) optional bit count by which to limit the file upload size
- *   extensions: (optional) space separated list of extensions to validate
+ *   parent_field_info: field info array
  *
  */
 function cirro_core_multi_file_upload_form($form, &$form_state, $options) {
@@ -349,9 +348,9 @@ function cirro_core_multi_file_upload_form($form, &$form_state, $options) {
 	$upload_desc = '';
 	
 	// Check for size limit option
-	if ( isset($info['size']) ) {
+	if ( isset($info['file_size']) ) {
 		
-		$size = $info['size'];
+		$size = $info['file_size'];
 		
 		// Add file size validation to validators
 		$validators['file_validate_size'] = array($size);
