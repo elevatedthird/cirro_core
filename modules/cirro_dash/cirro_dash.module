@@ -276,7 +276,7 @@ function cirro_dash_build() {
 					'title' => 'Remove Image',
 				),
 				'query' => array(
-					'destination' => "admin/dash/$type/$id/edit"
+					'destination' => "admin/dash"
 				),
 			)
 		);

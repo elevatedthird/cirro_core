@@ -379,7 +379,7 @@ function cirro_core_entity_delete_form($form, &$form_state, $type, $item) {
 	if ( isset($entity_info['children']) ) {
 		
 		$children = "
-			<div class=\"alert alert-error\">
+			<div class=\"alert alert-error \">
 				<strong>This will also delete ALL child items!</strong>
 			</div>
 		";
@@ -402,6 +402,7 @@ function cirro_core_entity_delete_form($form, &$form_state, $type, $item) {
 	$question = "Confirm Delete: $title";
 	$path = "admin/dash/$type/$id/edit";
 	$description = "
+		
 		Are you sure you want to delete <strong>$title</strong>?<br />
 		<div class=\"alert\">This cannot be undone!</div>
 		$children	
