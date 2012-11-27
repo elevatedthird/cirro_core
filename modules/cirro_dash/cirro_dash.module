@@ -20,7 +20,7 @@ function cirro_dash_permission() {
   return array(
     'access dashboard' => array(
       'title' => t('Access Admin Dashboard'),
-      'description' => t('Allows a user to access the custom Admin Dashboard for managing content.'),
+      'description' => t('Access content management dashboard.'),
     ),
   );
 }
@@ -43,13 +43,17 @@ function cirro_dash_menu() {
   return $items;
 }
 
-//Implements hook_user_login. Redirects user to their dashboard page once they have logged in.
+/*
+ * Implements hook_user_login.
+ * Redirects user to their dashboard page once they have logged in.
+ */
 function cirro_dash_user_login() {
 
   // Set $redirection to the run/dash
   $redirection = 'admin/dash';
 
-  // Unless there is already a redirection going, or the user is trying to reset his password, we redirect to $redirection.
+  // Unless there is already a redirection going, or the user is trying
+  // to reset his password, we redirect to $redirection.
   if (
   	empty($_GET['destination']) &&
   	!is_null($redirection) &&
@@ -197,7 +201,11 @@ function cirro_dash_build() {
 	// Filter form for table
 	$get_form = drupal_get_form('cirro_dash_filter', $types);
 	$filter_form = drupal_render($get_form);
-	$filter = "<div id=\"table-filter-wrapper\" class=\"dash-section\">$filter_form</div>";
+	$filter = "
+		<div id=\"table-filter-wrapper\" class=\"dash-section\">
+			$filter_form
+		</div>
+	";
 
 	// Get filter to limit types loaded for table
 	if (
@@ -223,7 +231,14 @@ function cirro_dash_build() {
 		
 		// Query specific data
 		$query_string = "
-			SELECT i.id, i.title, u.name AS user, i.created, i.changed, i.type, i.type_label
+			SELECT
+				i.id,
+				i.title,
+				u.name AS user,
+				i.created,
+				i.changed,
+				i.type,
+				i.type_label
 				FROM $table AS i
 				JOIN users AS u
 					ON i.uid = u.uid
@@ -242,15 +257,29 @@ function cirro_dash_build() {
 
 	// Build table rows
 	foreach ( $items as $item ) {
-	
+
 		// Build table elements
 		$id = $item->id;
 		$type = $item->type;
 		$type_label = $item->type_label;
 		$title = l($item->title, "admin/dash/$type/$id/edit");
-		$type = $type_label;
+		//$type = $type_label;
 		$author = $item->user;
 		$created = format_date($item->created, 'short');
+		$delete = l(
+			'<i class="icon-remove"></i> ',
+			"admin/dash/$type/{$id}/delete",
+			array(
+				'html' => TRUE,
+				'attributes' => array(
+					'class' => array('btn', 'btn-small'),
+					'title' => 'Remove Image',
+				),
+				'query' => array(
+					'destination' => "admin/dash/$type/$id/edit"
+				),
+			)
+		);
 		
 		// Check for 0 changed value
 		if ( $item->changed == 0 ) {
@@ -266,7 +295,17 @@ function cirro_dash_build() {
 		}
 		
 		// Create table row
-		$rows[] = array('data'=> array($title, $type, $author, $created, $updated));
+		$row = array(
+			'data'=> array(
+				$title,
+				$type_label,
+				$author,
+				$created,
+				$updated,
+				$delete
+				)
+		);
+		$rows[] = $row;
 	}
 
 /**
@@ -275,7 +314,11 @@ function cirro_dash_build() {
 	
 	// Build link for editing account info
 	$user_link = l('Edit login info', "user/{$user->uid}/edit");
-	$edit_user = "<div id=\"edit-user-wrapper\" class=\"dash-section\"><h3>$user_link</h3></div>";
+	$edit_user = "
+		<div id=\"edit-user-wrapper\" class=\"dash-section\">
+			<h3>$user_link</h3>
+		</div>
+	";
 	
 	// Build the add content html	
 	$add_content_html = "
@@ -305,7 +348,7 @@ function cirro_dash_build() {
 
 	
 	// Build existing table
-	$header = array('TITLE', 'TYPE', 'AUTHOR', 'CREATED', 'UPDATED');
+	$header = array('TITLE', 'TYPE', 'AUTHOR', 'CREATED', 'UPDATED', 'DELETE');
 
 	$table_vars = array(
 		'header' => $header,
@@ -317,7 +360,11 @@ function cirro_dash_build() {
 		'empty' => 'No Content of this Type',
 	);
 	
-	$table = '<div id="edit-existing-wrapper" class=\"dash-section\">' . theme_table($table_vars) . '</div>';
+	$table = theme_table($table_vars); 
+	$table_wrapped = "
+	<div id=\"edit-existing-wrapper\" class=\"dash-section\">
+		$table
+	</div>";
 	
 	$html = "
 		$add_content_html
@@ -475,7 +522,8 @@ function cirro_dash_weights_form($form, &$form_state, $type) {
 	$form['items'] = array();
 	$form['items']['#tree'] = TRUE;
 	
-	// Query nodes of the specified type ordered by the weight field and then name.
+	// Query nodes of the specified type ordered by the weight field
+	// and then name.
 	$query = new EntityFieldQuery;
 	$result = $query
 		->entityCondition('entity_type', 'node')
@@ -510,7 +558,10 @@ function cirro_dash_weights_form($form, &$form_state, $type) {
 			);
 
 			// Build weight default value
-			if(isset($node->field_weight) && !empty($node->field_weight['und'][0]['value'])) {
+			if(
+				isset($node->field_weight) &&
+				!empty($node->field_weight['und'][0]['value'])
+			) {
 
 				// Load field value
 				$default_weight = $node->field_weight['und'][0]['value'];
@@ -570,7 +621,8 @@ function cirro_dash_weights_form_submit($form, &$form_state) {
  * Theme weights form
  *
  * @param $variables
- *   Variables array passed by theme system. Full form array can be found at 'form' index.
+ *   Variables array passed by theme system.
+ *   Full form array can be found at 'form' index.
  *
  * @return
  *   Markup for form as a table w/ drag and drop

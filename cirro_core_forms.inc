@@ -241,16 +241,6 @@ function cirro_core_entity_edit_form($form, &$form_state, $options) {
 		'#value' => $id_field,
 	);
 
-	// If the item has a value for the id_field
-	if ( isset($item->id) ) {
-
-		// Add id value as hidden element
-		$form[$id_field] = array(
-			'#type' => 'hidden',
-			'#value' => $item->id,
-		);
-
-	}
 
 	// Uppercase action for display
 	$action_display = ucfirst($action);
@@ -280,7 +270,24 @@ function cirro_core_entity_edit_form($form, &$form_state, $options) {
 	$form['submit'] = array(
 		'#type' => 'submit',
 		'#value' => "Save Item",
-	);	
+	);
+
+	// If the item has a value for the id_field
+	if ( isset($item->id) ) {
+
+		$delete_button = l('delete', "admin/dash/$type/$item->id/delete");
+
+		$form['delete'] = array(
+			'#markup' => $delete_button,
+		);
+
+		// Add id value as hidden element
+		$form[$id_field] = array(
+			'#type' => 'hidden',
+			'#value' => $item->id,
+		);
+
+	}
 
 	return $form;
 
