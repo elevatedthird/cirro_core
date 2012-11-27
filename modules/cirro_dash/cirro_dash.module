@@ -189,7 +189,7 @@ function cirro_dash_build() {
 		}
 
 	}
-	
+
 /**
  * Get the info needed to build the table
  */
@@ -205,8 +205,12 @@ function cirro_dash_build() {
 		$_SESSION['cirro_dash_type_filter'] !== '*'
 	) {
 
+		$filter_type = $_SESSION['cirro_dash_type_filter'];
+
 		// Replace types array with filter selection
-		$types = array($_SESSION['cirro_dash_type_filter'] => $_SESSION['cirro_dash_type_filter']);
+		$types = array(
+			$filter_type => $types[$filter_type],
+		);
 
 	}
 
