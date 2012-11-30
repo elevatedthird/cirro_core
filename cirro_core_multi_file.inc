@@ -128,7 +128,7 @@ function cirro_core_multi_file_build_forms($item, $multi_file_fields, $type, $id
 				
 				// Build field html
 				$field_forms = "
-					<div class=\"multi-form-wrapper box-white\">
+					<div class=\"multi-form-wrapper box-border\">
 						<div class=\"title-wrapper\">
 							<h2>{$info['label']}</h2>
 						</div>

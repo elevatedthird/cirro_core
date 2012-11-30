@@ -45,15 +45,57 @@
 	// When the document is ready
 	$document.ready(function() {
 
+		// Redactor WYSIWYG
 		// Init
 		var $textareas = $( Cirro.WYSIWYG.fieldSelector );
 		var buttons = Cirro.WYSIWYG.buttons;
 
-console.log( $textareas );
 
 		// Instantiate redactor
 		$textareas.redactor({
 			buttons: buttons,
+		});
+
+		// Core multi tools details simple slider
+
+		// Init
+		var $accButton = $('div.multi-acc-button');
+		var $accContent = $('div.multi-acc-content');
+		var detailsText = '<i class="icon-chevron-down"></i> show details';
+		var hideText = '<i class="icon-chevron-up"></i> hide';
+
+		// Bind click to button
+		$accButton.click(function() {
+
+			// Init
+			var $this = $(this);
+			var $thisContent = $this.next('div.multi-acc-content');
+
+			// Check for content visible
+			if ( $thisContent.is(':visible') ) {
+
+				// Hide content
+				$thisContent.slideUp();
+
+				// Replace button content
+				$this.html(detailsText);
+
+			} else {
+
+				// Slide up an other contents that are visible
+				$accContent.slideUp();
+
+				// Replace all buttons with details text
+				$accButton.html(detailsText);
+
+				// Show content
+				$thisContent.slideDown();
+
+				// Replace button content
+				$this.html(hideText);
+
+			}
+
 		});
 
 	});	

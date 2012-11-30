@@ -130,7 +130,7 @@ function cirro_core_entity_edit_page($type, $item, $action = NULL) {
 
 	// Add form to html
 	$form_wrapped = "
-		<div class=\"edit-form-wrapper box-white\">
+		<div class=\"edit-form-wrapper box-border\">
 			$form
 		</div>
 	";
@@ -139,7 +139,12 @@ function cirro_core_entity_edit_page($type, $item, $action = NULL) {
 	if ( isset($info['children']) ) {
 		
 		// Build children forms
-		$children = cirro_core_children_build_forms($item, $info['children'], $type, $id);
+		// $children = cirro_core_children_build_forms(
+		// 	$item,
+		// 	$info['children'],
+		// 	$type,
+		// 	$id
+		// );
 
 	}
 
@@ -147,7 +152,12 @@ function cirro_core_entity_edit_page($type, $item, $action = NULL) {
 	if ( isset($info['multi_img']) ) {
 
 		// Build options
-		$imgs = cirro_core_multi_img_build_forms($item, $info['multi_img'], $type, $id);
+		$imgs = cirro_core_multi_img_build_forms(
+			$item,
+			$info['multi_img'],
+			$type,
+			$id
+		);
 
 	}
 	
@@ -155,7 +165,12 @@ function cirro_core_entity_edit_page($type, $item, $action = NULL) {
 	if ( isset($info['multi_file']) ) {
 		
 		// Build files
-		$files = cirro_core_multi_file_build_forms($item, $info['multi_file'], $type, $id);
+		$files = cirro_core_multi_file_build_forms(
+			$item,
+			$info['multi_file'],
+			$type,
+			$id
+		);
 		
 	}
 

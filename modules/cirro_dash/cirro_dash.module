@@ -77,12 +77,6 @@ function cirro_dash_theme() {
 	);
 
 }
-
-
-
-
-
-
 /**
  * Admin Dashboard page build function().
  * Get all the entity info arrays
@@ -167,7 +161,11 @@ function cirro_dash_build() {
 						// Append to the edit primary links
 						$label = $info['label'];
 						$link = l("Edit $label", "admin/dash/$mach_name/1/edit", array('html' => TRUE));
-						$edit_primary_links .= "<span><i class=\"icon-edit\"></i> <strong>$link</strong></span>";
+						$edit_primary_links .= "
+							<div class=\"edit-primary-links\">
+								<i class=\"icon-edit\"></i> <strong>$link</strong>
+							</div>
+						";
 					}
 				
 			}
@@ -178,7 +176,10 @@ function cirro_dash_build() {
 				// Append to the reorder links
 				$label = $info['label'];
 				$link = l("Reorder $label", "admin/dash/weights/$mach_name", array('html' => TRUE));
-				$reorder_links .= "<span><i class=\"icon-move\"></i> <strong>$link</strong></span>";
+				$reorder_links .= "
+					<div class=\"reorder-links\">
+						<i class=\"icon-move\"></i> <strong>$link</strong>
+					</div>";
 	
 			}
 	

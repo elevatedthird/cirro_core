@@ -20,7 +20,7 @@
 function cirro_core_multi_img_build_forms($item, $multi_imgs, $type, $id) {
 	
 	// Init
-	$imgs = '';
+	$imgs_markup = '';
 
 	// Check for add
 	if ( $item === 'add' ) {
@@ -41,7 +41,7 @@ function cirro_core_multi_img_build_forms($item, $multi_imgs, $type, $id) {
 			";
 
 			// Add to imgs markup
-			$imgs .= $img_form;
+			$imgs_markup .= $img_form;
 
 		}
 
@@ -52,7 +52,7 @@ function cirro_core_multi_img_build_forms($item, $multi_imgs, $type, $id) {
 
 			// Query existing imgs
 			$query_string = "
-				SELECT id, fid, weight, img_alt, img_title
+				SELECT id, fid, weight, img_alt, img_title, data_fields
 					FROM cirro_multi_img
 					WHERE parent_id = :id
 					AND parent_type = :type
@@ -121,7 +121,7 @@ function cirro_core_multi_img_build_forms($item, $multi_imgs, $type, $id) {
 
 			// Build multi img form elements
 			$img_form = "
-				<div class=\"multi-img-form-wrapper box-white\">
+				<div class=\"multi-img-form-wrapper box-border\">
 					<div class=\"title-wrapper\">
 						<h2>{$info['label']}</h2>
 					</div>
@@ -137,13 +137,13 @@ function cirro_core_multi_img_build_forms($item, $multi_imgs, $type, $id) {
 			";
 
 			// Add to imgs markup
-			$imgs .= $img_form;
+			$imgs_markup .= $img_form;
 
 		}
 
 	}
 	
-	return $imgs;
+	return $imgs_markup;
 	
 }
 
@@ -167,6 +167,8 @@ function cirro_core_multi_img_weight_form($form, &$form_state, $options) {
 	$type = $options['parent_type'];
 	$field = $options['parent_field'];
 	$imgs = $options['imgs'];
+	$entity_info = entity_get_info($type);
+	$field_info = $entity_info['multi_img'][$field];
 
 	// Build weight options
 	$weight_options = array();
@@ -263,21 +265,51 @@ function cirro_core_multi_img_weight_form($form, &$form_state, $options) {
 		// Add fields
 		$fields['img_title'] = array(
 			'#type' => 'textfield',
-			'#attributes' => array(
-				'placeholder' => 'Title Text',
-				'title' => 'Title Text',
-			),
+			'#title' => 'Title',
 			'#default_value' => $img->img_title,
+			'#attributes' => array(
+				//'class' => array('span10'),
+			),
 		);
 
 		$fields['img_alt'] = array(
 			'#type' => 'textfield',
-			'#attributes' => array(
-				'placeholder' => 'Alt Text',
-				'title' => 'Alt Text',
-			),
+			'#title' => 'Alt',
 			'#default_value' => $img->img_alt,
+			'#attributes' => array(
+				//'class' => array('span10'),
+			),
 		);
+
+			// Check for data fields
+			if ( isset($field_info['data_fields']) ) {
+
+				// Init
+				$img_data_fields = unserialize($img->data_fields);
+				$fields['data_fields'] = array();
+				$fields['data_fields']['#tree'] = TRUE;
+
+				// Loop through data fields
+				foreach( $field_info['data_fields'] as $data_name => $data_structure) {
+
+					// Add field item
+					$fields['data_fields'][$data_name] = $data_structure;
+
+					// Check for default value
+					if ( isset($img_data_fields[$data_name]) ) {
+
+						// Load deafult value
+						$def_value = $img_data_fields[$data_name];
+
+
+						// Add default value
+						$fields['data_fields'][$data_name]['#default_value'] = $def_value;
+
+					}
+
+				}
+
+			}
 
 		$fields['delete_link'] = array(
 			'#markup' => l(
@@ -538,11 +570,30 @@ function theme_cirro_core_multi_img_weight_form($variables) {
 		$data .= drupal_render($element['id']);
 		$data .= drupal_render($element['img_title']);
 		$data .= drupal_render($element['img_alt']);
+		$data .= drupal_render($element['data_fields']);
 		
+		// Wrap data fields for acc
+		$data_wrapped = "
+			<div class=\"multi-img-data-col\">
+				<div class=\"multi-acc-button\">
+					<i class=\"icon-chevron-down\"></i>
+					show details
+				</div>
+				<div class=\"multi-acc-content\">
+					$data
+				</div>
+			</div>
+		";
+
 		// Build row
 		$row = array();
-		$row[] = drupal_render($element['thumbnail']);
-		$row[] = $data;
+		$img_thumb = drupal_render($element['thumbnail']);
+		$row[] = "
+			<div class=\"multi-img-thumb-col\">
+				$img_thumb
+			</div>
+		";
+		$row[] = $data_wrapped;
 		$row[] = drupal_render($element['weight']);
 		$row[] = drupal_render($element['delete_link']);
 		

@@ -107,6 +107,12 @@ function cirro_core_schema() {
 				'default' => '',
 			),
 
+			'data_fields' => array(
+				'type' => 'blob',
+				'size' => 'normal',
+				'serialize' => TRUE,
+			),
+
 		),
 
 		'primary key' => array('id'),
@@ -198,6 +204,12 @@ function cirro_core_schema() {
 				'default' => '',
 			),
 
+			'data_fields' => array(
+				'type' => 'blob',
+				'size' => 'normal',
+				'serialize' => TRUE,
+			),
+
 		),
 
 		'primary key' => array('id'),
@@ -205,5 +217,22 @@ function cirro_core_schema() {
 	);
 
 	return $schema;
+
+}
+
+/**
+ * Add data fields storage to both img and file.
+ */
+function cirro_core_update_7001() {
+
+	// Data fields spec
+	$spec = array(
+		'type' => 'blob',
+		'size' => 'normal',
+		'serialize' => TRUE,
+	);
+
+	db_add_field('cirro_multi_file', 'data_fields', $spec);
+	db_add_field('cirro_multi_img', 'data_fields', $spec);
 
 }
