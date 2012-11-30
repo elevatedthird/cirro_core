@@ -55,7 +55,7 @@ function cirro_core_multi_file_build_forms($item, $multi_file_fields, $type, $id
 			
 			// Query existing file items
 			$query_string = "
-				SELECT id, title, fid, weight
+				SELECT id, title, fid, weight, data_fields
 					FROM cirro_multi_file
 					WHERE parent_id = :parent_id
 					AND parent_type = :parent_type
@@ -176,6 +176,8 @@ function cirro_core_multi_file_weight_form($form, &$form_state, $options) {
 	$type = $options['parent_type'];
 	$field = $options['parent_field'];
 	$files = $options['files'];
+	$entity_info = entity_get_info($type);
+	$field_info = $entity_info['multi_file'][$field];
 
 	// Build weight options
 	$weight_options = array();
@@ -238,11 +240,14 @@ function cirro_core_multi_file_weight_form($form, &$form_state, $options) {
 
 		$fields['file_name'] = array(
 			'#markup' => l(
-				$file_name,
+				'<i class="icon-file"></i> download',
 				$file_path,
 				array(
 					'html' => TRUE,
-					'attributes' => array('target' => '_blank'),
+					'attributes' => array(
+						'title' => $file_name,
+						'target' => '_blank',
+					),
 				)
 			),
 		);
@@ -257,12 +262,46 @@ function cirro_core_multi_file_weight_form($form, &$form_state, $options) {
 		// Add fields
 		$fields['title'] = array(
 			'#type' => 'textfield',
-			'#attributes' => array(
-				'placeholder' => 'Title',
-				'title' => 'Title',
-			),
+			'#title' => 'Title',
 			'#default_value' => $file->title,
 		);
+
+		// Check for data fields
+		if ( isset($field_info['data_fields']) ) {
+
+			// Init
+			$fields['data_fields'] = array();
+			$fields['data_fields']['#tree'] = TRUE;
+			$file_data_fields = array();
+
+			// Check for data field values in item
+			if ( isset($file->data_fields) ) {
+
+				$file_data_fields = unserialize($file->data_fields);
+
+			}
+
+			// Loop through data fields
+			foreach( $field_info['data_fields'] as $data_name => $data_structure) {
+
+				// Add field item
+				$fields['data_fields'][$data_name] = $data_structure;
+
+				// Check for default value
+				if ( isset($file_data_fields[$data_name]) ) {
+
+					// Load deafult value
+					$def_value = $file_data_fields[$data_name];
+
+
+					// Add default value
+					$fields['data_fields'][$data_name]['#default_value'] = $def_value;
+
+				}
+
+			}
+
+		}
 
 		$fields['delete_link'] = array(
 			'#markup' => l(
@@ -503,10 +542,43 @@ function theme_cirro_core_multi_file_weight_form($variables) {
 		$data .= drupal_render($element['id']);
 		$data .= drupal_render($element['title']);
 		
+		// Check for data fields
+		if ( isset($element['data_fields']) ) {
+
+			// Render fields
+			$data_fields = drupal_render($element['data_fields']);
+
+			// Wrap for acc
+			$data_fields_wrapped = "
+				<div class=\"multi-acc-button\">
+					<i class=\"icon-chevron-down\"></i>
+					show details
+				</div>
+				<div class=\"multi-acc-content\">
+					$data_fields
+				</div>
+			";
+
+			// Add to data section
+			$data .= $data_fields_wrapped;
+
+		}
+		
+		$data_wrapped = "
+			<div class=\"multi-tool-data-col\">
+				$data
+			</div>
+		";
+
 		// Build row
 		$row = array();
-		$row[] = drupal_render($element['file_name']);
-		$row[] = $data;
+		$file_thumb = drupal_render($element['file_name']);
+		$row[] = "
+			<div class=\"multi-tool-thumb-col\">
+				$file_thumb
+			</div>
+		";
+		$row[] = $data_wrapped;
 		$row[] = drupal_render($element['weight']);
 		$row[] = drupal_render($element['delete_link']);
 		

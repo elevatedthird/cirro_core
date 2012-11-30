@@ -139,12 +139,12 @@ function cirro_core_entity_edit_page($type, $item, $action = NULL) {
 	if ( isset($info['children']) ) {
 		
 		// Build children forms
-		// $children = cirro_core_children_build_forms(
-		// 	$item,
-		// 	$info['children'],
-		// 	$type,
-		// 	$id
-		// );
+		$children = cirro_core_children_build_forms(
+			$item,
+			$info['children'],
+			$type,
+			$id
+		);
 
 	}
 

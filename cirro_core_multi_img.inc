@@ -20,7 +20,7 @@
 function cirro_core_multi_img_build_forms($item, $multi_imgs, $type, $id) {
 	
 	// Init
-	$imgs_markup = '';
+	$html = '';
 
 	// Check for add
 	if ( $item === 'add' ) {
@@ -41,7 +41,7 @@ function cirro_core_multi_img_build_forms($item, $multi_imgs, $type, $id) {
 			";
 
 			// Add to imgs markup
-			$imgs_markup .= $img_form;
+			$html .= $img_form;
 
 		}
 
@@ -137,13 +137,13 @@ function cirro_core_multi_img_build_forms($item, $multi_imgs, $type, $id) {
 			";
 
 			// Add to imgs markup
-			$imgs_markup .= $img_form;
+			$html .= $img_form;
 
 		}
 
 	}
 	
-	return $imgs_markup;
+	return $html;
 	
 }
 
@@ -574,7 +574,7 @@ function theme_cirro_core_multi_img_weight_form($variables) {
 		
 		// Wrap data fields for acc
 		$data_wrapped = "
-			<div class=\"multi-img-data-col\">
+			<div class=\"multi-tool-data-col\">
 				<div class=\"multi-acc-button\">
 					<i class=\"icon-chevron-down\"></i>
 					show details
@@ -589,7 +589,7 @@ function theme_cirro_core_multi_img_weight_form($variables) {
 		$row = array();
 		$img_thumb = drupal_render($element['thumbnail']);
 		$row[] = "
-			<div class=\"multi-img-thumb-col\">
+			<div class=\"multi-tool-thumb-col\">
 				$img_thumb
 			</div>
 		";
