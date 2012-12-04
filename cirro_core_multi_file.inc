@@ -639,7 +639,7 @@ function cirro_core_multi_file_loader($type, $id, $field){
 	
 	// Query items
 	$file_query_string = "
-	SELECT i.title, f.uri, f.fid 
+	SELECT i.title, i.data_fields, f.uri, f.fid 
   	FROM cirro_multi_file AS i
   	JOIN file_managed AS f
   		ON i.fid = f.fid
@@ -661,8 +661,12 @@ function cirro_core_multi_file_loader($type, $id, $field){
  // If images return url, title, alt
  foreach ( $file_results as $file_result ) {
 	 
+	 // Build file
 	 $file_result->url = file_create_url($file_result->uri);
 	 
+	 // Build data fields
+	 $file_result->data_fields = unserialize($file_result->data_fields);
+
 	 $files[] = $file_result;
 
  }

@@ -649,7 +649,7 @@ function cirro_core_multi_img_loader($type, $id, $field){
 	
 	// Query items
 	$img_query_string = "
-	SELECT m.img_alt, m.img_title, f.uri, f.fid 
+	SELECT m.img_alt, m.img_title, m.data_fields, f.uri, f.fid 
   	FROM cirro_multi_img AS m
   	JOIN file_managed AS f
   		ON m.fid = f.fid
@@ -672,6 +672,8 @@ function cirro_core_multi_img_loader($type, $id, $field){
  foreach ( $img_results as $img_result ) {
 	 
 	 $img_result->url = file_create_url($img_result->uri);
+
+	 $img_result->data_fields = unserialize($img_result->data_fields);
 	 
 	 $imgs[] = $img_result;
 
