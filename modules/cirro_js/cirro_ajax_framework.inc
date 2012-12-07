@@ -48,6 +48,9 @@ function cirro_ajax_framework() {
 	
 	} catch(Exception $e) {
 
+		// Log exception
+		watchdog_exception('cirro_ajax', $e);
+
 		// Cleanup file name
 		$doc_len = strlen($_SERVER['DOCUMENT_ROOT']);
 		$file = substr($e->getFile(), $doc_len);
