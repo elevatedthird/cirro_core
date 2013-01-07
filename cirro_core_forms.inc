@@ -334,7 +334,7 @@ function cirro_core_entity_edit_form_submit($form, &$form_state) {
 		$id = $new_obj->$id_field;
 
 		// Add id to form_state
-		$form_state['values'][$id_field][$id];
+		$form_state['values'][$id_field] = [$id];
 
 		// Set success message
 		drupal_set_message("Item $action complete.");
@@ -343,7 +343,9 @@ function cirro_core_entity_edit_form_submit($form, &$form_state) {
 		$form_state['redirect'] = "admin/dash/$type/$id/edit";
 
 	} else {
+
 		drupal_set_message("Controller fail.", "error");
+
 	} 
 
 }
