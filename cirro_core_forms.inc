@@ -333,6 +333,9 @@ function cirro_core_entity_edit_form_submit($form, &$form_state) {
 		// Load id
 		$id = $new_obj->$id_field;
 
+		// Add id to form_state
+		$form_state['values'][$id_field][$id];
+
 		// Set success message
 		drupal_set_message("Item $action complete.");
 
