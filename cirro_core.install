@@ -6,9 +6,80 @@
  */
 
 /**
+ * Implements hook_instal().
+ * Create staff role.
+ */
+function cirro_core_install() {
+
+	// Init
+	$role = new stdClass;
+
+	// Add name
+	$role->name = 'staff';
+
+	// Create role
+	user_role_save($role);
+
+	// Load role
+	$role = user_role_load_by_name('staff');
+
+	// Check for role
+	if ( !empty($role) ) {
+
+		// Load role ID
+		$rid = $role->rid;
+
+		// Permissions to grant
+		$permissions = array(
+			'add multi_img',
+			'edit multi_img',
+			'delete multi_img',
+			'add multi_file',
+			'edit multi_file',
+			'delete multi_file',
+			'access dashboard',
+			'access administration pages',
+			'access site in maintenance mode',
+			'view the administration theme',
+			'administer users',
+			'change own username',
+		);
+
+		// Grant permissions
+		user_role_grant_permissions($rid, $permissions);
+
+	}
+
+}
+
+/**
+ * Implements hook_uninstall().
+ * Remove staff role.
+ */
+function cirro_core_uninstall() {
+
+	// Load role
+	$role = user_role_load_by_name('staff');
+
+	// Load role ID
+	$rid = $role->rid;
+
+	db_delete('role')
+    ->condition('rid', $rid)
+    ->execute();
+  db_delete('role_permission')
+    ->condition('rid', $rid)
+    ->execute();
+  // Update the users who have this role set:
+  db_delete('users_roles')
+    ->condition('rid', $rid)
+    ->execute();
+
+}
+
+/**
  * Implements hook_schema().
  */
- 
 function cirro_core_schema() {
 	
 	// Init
