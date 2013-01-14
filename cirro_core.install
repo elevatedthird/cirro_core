@@ -351,6 +351,7 @@ function cirro_core_update_7002() {
 		'access site in maintenance mode',
 		'view the administration theme',
 		'administer users',
+		'administer permissions',
 		'change own username',
 	);
 
