@@ -332,31 +332,28 @@ function cirro_core_update_7002() {
 		// Load role
 		$role = user_role_load_by_name('staff');
 
-	} else {
-
-		// Load role ID
-		$rid = $role->rid;
-
-		// Permissions to grant
-		$permissions = array(
-			'add multi_img',
-			'edit multi_img',
-			'delete multi_img',
-			'add multi_file',
-			'edit multi_file',
-			'delete multi_file',
-			'access dashboard',
-			'access administration pages',
-			'access site in maintenance mode',
-			'view the administration theme',
-			'administer users',
-			'change own username',
-		);
-
-		// Grant permissions
-		user_role_grant_permissions($rid, $permissions);
-
 	}
 
+	// Load role ID
+	$rid = $role->rid;
+
+	// Permissions to grant
+	$permissions = array(
+		'add multi_img',
+		'edit multi_img',
+		'delete multi_img',
+		'add multi_file',
+		'edit multi_file',
+		'delete multi_file',
+		'access dashboard',
+		'access administration pages',
+		'access site in maintenance mode',
+		'view the administration theme',
+		'administer users',
+		'change own username',
+	);
+
+	// Grant permissions
+	user_role_grant_permissions($rid, $permissions);
 
 }
