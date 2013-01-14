@@ -251,6 +251,29 @@ function cirro_core_access_callback($type, $action) {
 }
 
 /**
+ * Implements hook_form_alter().
+ */
+function cirro_core_form_alter(&$form, &$form_state, $form_id) {
+
+	// Hide admin from user_admin table
+	if ( $form_id === 'user_admin_account' ) {
+
+		// Remove admin account
+		unset($form['accounts']['#options'][1]);
+
+	}
+
+	// Hide admin role options from user create form
+	if ( $form_id === 'user_register_form' ) {
+
+		// Remove admin option
+		unset($form['account']['roles']['#options'][3]);
+
+	}
+
+}
+
+/**
  * Implements hook_forms().
  *
  * Maps multiple form_ids to single form validate/submit shiz.

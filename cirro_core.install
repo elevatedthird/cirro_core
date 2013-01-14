@@ -64,6 +64,7 @@ function cirro_core_uninstall() {
 	// Load role ID
 	$rid = $role->rid;
 
+	// Delete stuff
 	db_delete('role')
     ->condition('rid', $rid)
     ->execute();
@@ -305,5 +306,57 @@ function cirro_core_update_7001() {
 
 	db_add_field('cirro_multi_file', 'data_fields', $spec);
 	db_add_field('cirro_multi_img', 'data_fields', $spec);
+
+}
+
+/**
+ * Check for staff role and create if needed and then grant permissions.
+ */
+function cirro_core_update_7002() {
+
+	// Try to load role
+	$role = user_role_load_by_name('staff');
+
+	// Check for staff role
+	if ( empty($role) ) {
+
+		// Init
+		$role = new stdClass;
+
+		// Add name
+		$role->name = 'staff';
+
+		// Create role
+		user_role_save($role);
+
+		// Load role
+		$role = user_role_load_by_name('staff');
+
+	} else {
+
+		// Load role ID
+		$rid = $role->rid;
+
+		// Permissions to grant
+		$permissions = array(
+			'add multi_img',
+			'edit multi_img',
+			'delete multi_img',
+			'add multi_file',
+			'edit multi_file',
+			'delete multi_file',
+			'access dashboard',
+			'access administration pages',
+			'access site in maintenance mode',
+			'view the administration theme',
+			'administer users',
+			'change own username',
+		);
+
+		// Grant permissions
+		user_role_grant_permissions($rid, $permissions);
+
+	}
+
 
 }
