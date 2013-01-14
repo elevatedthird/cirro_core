@@ -42,6 +42,7 @@ function cirro_core_install() {
 			'access site in maintenance mode',
 			'view the administration theme',
 			'administer users',
+			'administer permissions',
 			'change own username',
 		);
 
