@@ -31,9 +31,6 @@ function PROJECT_items_schema() {
 			),
 
 		),
-
-		'primary key' => array('id'),
-
 	);
 
 	// ABOUT PAGE
@@ -101,20 +98,6 @@ function PROJECT_items_schema() {
 			),
 
 		),
-
-		'primary key' => array('id'),
-
-	);
-
-	// PRESS PAGE
-	$schema['PROJECT_press_page'] = array(
-
-		'description' => 'Base table for press_page',
-
-		'fields' => array(),
-
-		'primary key' => array('id'),
-
 	);
 
 	// CONTACT PAGE
@@ -135,9 +118,6 @@ function PROJECT_items_schema() {
 			),
 
 		),
-
-		'primary key' => array('id'),
-
 	);
 
 	// STORE ITEM
@@ -147,13 +127,13 @@ function PROJECT_items_schema() {
 
 		'fields' => array(
 			
-			'name' => array(
+			'title' => array(
 				'type' => 'varchar',
 				'length' => 255,
 				'not null' => TRUE,
 				'form' => array(
 					'#type' => 'textfield',
-					'#title' => 'Store Item Name',
+					'#title' => 'Store Item Title',
 				),
 			),
 
@@ -203,9 +183,6 @@ function PROJECT_items_schema() {
 			),						
 
 		),
-		
-		'primary key' => array('id'),
-
 	);
 
 	$schema['PROJECT_collection'] = array(
@@ -213,13 +190,13 @@ function PROJECT_items_schema() {
 		'description' => 'Base table for collection',
 		'fields' => array(
 			
-			'name' => array(
+			'title' => array(
 				'type' => 'varchar',
 				'length' => 255,
 				'not null' => TRUE,
 				'form' => array(
 					'#type' => 'textfield',
-					'#title' => 'Collection Name',
+					'#title' => 'Collection Title',
 				),
 			),
 
@@ -230,9 +207,6 @@ function PROJECT_items_schema() {
 			),
 		
 		),
-		
-		'primary key' => array('id'),
-
 	);
 	
 	$schema['PROJECT_blog'] = array(
@@ -241,7 +215,7 @@ function PROJECT_items_schema() {
 
 		'fields' => array(
 			
-			'name' => array(
+			'title' => array(
 				'type' => 'varchar',
 				'length' => 255,
 				'not null' => TRUE,
@@ -284,9 +258,6 @@ function PROJECT_items_schema() {
 			),
 
 		),
-		
-		'primary key' => array('id'),
-
 	);
 
 	$schema['PROJECT_location'] = array(
@@ -295,13 +266,13 @@ function PROJECT_items_schema() {
 
 		'fields' => array(
 
-			'name' => array(
+			'title' => array(
 				'type' => 'varchar',
 				'length' => 255,
 				'not null' => TRUE,
 				'form' => array(
 					'#type' => 'textfield',
-					'#title' => 'Store Name',
+					'#title' => 'Store Title',
 					'#required' => TRUE,
 				),
 			),
@@ -347,73 +318,9 @@ function PROJECT_items_schema() {
 			),
 
 		),
-		
-		'primary key' => array('id'),
-		
 	);
 
-	/*
-	 * Default fields
-	 *
-	 * This array of fields will be added onto the beginning of all schemas.
-	 */
-	$defaults = array(
-
-		'id' => array(
-			'type' => 'serial',
-			'unsigned' => TRUE,
-			'not null' => TRUE,
-			'form' => array(
-				'#type' => 'hidden',
-			),
-		),
-	
-		'created' => array(
-			'type' => 'int',
-			'unsigned' => TRUE,
-			'not null' => TRUE,
-			'default' => 0
-		),
-	
-		'changed' => array(
-			'type' => 'int',
-			'unsigned' => TRUE,
-			'not null' => TRUE,
-			'default' => 0,
-		),
-	
-		'uid' => array(
-			'type' => 'int',
-			'unsigned' => TRUE,
-		),
-		
-		'type' => array(
-			'type' => 'varchar',
-			'length' => 255,
-			'not null' => TRUE,
-			'default' => '',
-		),
-		
-		'type_label' => array(
-			'type' => 'varchar',
-			'length' => 255,
-			'not null' => TRUE,
-			'default' => '',
-		),
-
-	);
-
-	// Loop through schema
-	foreach ( $schema as $index => $item_schema ) {
-		
-		// Merge default fields onto fields array
-		$schema[$index]['fields'] = array_merge($defaults, $schema[$index]['fields']);
-
-		// Add primary key
-		$schema[$index]['primary key'] = array('id');
-
-	}
+	cirro_core_schema_defaults($schema);
 
 	return $schema;
-
 }

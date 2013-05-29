@@ -20,6 +20,9 @@ function PROJECT_items_entity_info() {
 	$entities['home_page'] = array(
 		'label' => t('Home Page'),
 		'controller class' => 'cirroCoreController',
+		'entity keys' => array(
+			'id' => 'id',
+		),
 		'base table' => 'PROJECT_home_page',
 		'dashboard' => array('primary'),
 	);
@@ -28,6 +31,9 @@ function PROJECT_items_entity_info() {
 	$entities['about_page'] = array(
 		'label' => t('About Page'),
 		'controller class' => 'cirroCoreController',
+		'entity keys' => array(
+			'id' => 'id',
+		),
 		'base table' => 'PROJECT_about_page',
 		'dashboard' => array('primary'),
 	);
@@ -36,6 +42,9 @@ function PROJECT_items_entity_info() {
 	$entities['press_page'] = array(
 		'label' => t('Press Page'),
 		'controller class' => 'cirroCoreController',
+		'entity keys' => array(
+			'id' => 'id',
+		),
 		'base table' => 'PROJECT_press_page',
 		'dashboard' => array('primary'),
 		'multi_img' => array(
@@ -50,6 +59,9 @@ function PROJECT_items_entity_info() {
 		'label' => t('Contact Page'),
 		'controller class' => 'cirroCoreController',
 		'base table' => 'PROJECT_contact_page',
+		'entity keys' => array(
+			'id' => 'id',
+		),
 		'dashboard' => array('primary'),
 	);
 
@@ -58,6 +70,9 @@ function PROJECT_items_entity_info() {
 		'label' => t('Store Item'),
 		'controller class' => 'cirroCoreController',
 		'base table' => 'PROJECT_store_item',
+		'entity keys' => array(
+			'id' => 'id',
+		),
 		'dashboard' => array('add', 'table', 'weight'),
 		'multi_img' => array(
 			'additional_imgs' => array(
@@ -75,6 +90,9 @@ function PROJECT_items_entity_info() {
 		'controller class' => 'cirroCoreController',
 		'base table' => 'PROJECT_collection',
 		'dashboard' => array('add', 'table', 'weight'),
+		'entity keys' => array(
+			'id' => 'id',
+		),
 		'multi_img' => array(
 			'collection_imgs' => array(
 				'label' => 'Collection Images',
@@ -86,6 +104,9 @@ function PROJECT_items_entity_info() {
 		'label' => t('Blog'),
 		'controller class' => 'cirroCoreController',
 		'base table' => 'PROJECT_blog',
+		'entity keys' => array(
+			'id' => 'id',
+		),
 		'dashboard' => array('add', 'table', 'weight'),
 		'multi_img' => array(
 			'blog_imgs' => array(
@@ -98,29 +119,11 @@ function PROJECT_items_entity_info() {
 		'label' => t('Location'),
 		'controller class' => 'cirroCoreController',
 		'base table' => 'PROJECT_location',
-		'dashboard' => array('add', 'table'),
-	);
-
-	/**
-	 * Default entity options.
-	 *
-	 * This array will be added to each entity array.
-	 */
-	$defaults = array(
-		'fieldable' => FALSE,
 		'entity keys' => array(
 			'id' => 'id',
 		),
-		'static cache' => TRUE,
+		'dashboard' => array('add', 'table'),
 	);
-	
-	// Loop through entities
-	foreach ( $entities as $index => $entity ) {
-		
-		// Merge defaults array
-		$entities[$index] = array_merge($defaults, $entity);
-		
-	}
 	
 	return $entities;
 
