@@ -37,7 +37,6 @@ function cirro_core_install() {
 			'add multi_file',
 			'edit multi_file',
 			'delete multi_file',
-			'access dashboard',
 			'access administration pages',
 			'access site in maintenance mode',
 			'view the administration theme',
