@@ -32,7 +32,7 @@ function cirro_core_build_breadcrumb($item) {
 		}
 			
 		// Recurse through parent layers
-		while ( isset($item->parent_type) ) {
+		while ( isset($item->parent_type) && !empty($item->parent_type) ) {
 			
 			// Load parent item
 			$parent_item = cirro_core_single_load($item->parent_id, $item->parent_type);
