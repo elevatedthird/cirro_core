@@ -54,6 +54,7 @@
 		// Instantiate redactor
 		$textareas.redactor({
 			buttons: buttons,
+			allowedTags: ["a", "p", "b", "i"]
 		});
 
 		// Core multi tools details simple slider
