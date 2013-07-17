@@ -17,6 +17,13 @@ function cirro_js_menu() {
 		'file' => 'cirro_ajax_framework.inc',
 	);
 
+	// Redactor file upload
+	$items['admin/dash/js/upload'] = array(
+		'page callback' => 'cirro_js_upload',
+		'access arguments' => array('access dashboard'),
+		'file' => 'cirro_js_upload.inc'
+	);
+
 	return $items;
 
 }

@@ -54,6 +54,8 @@
 		// Instantiate redactor
 		$textareas.redactor({
 			buttons: buttons,
+			imageUpload: '/admin/dash/js/upload',
+			fileUpload: '/admin/dash/js/upload',
 			allowedTags: ["a", "p", "b", "i"]
 		});
 
