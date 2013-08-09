@@ -90,6 +90,9 @@ function cirro_dash_build() {
 
 	// Init
 	global $user;
+	$hooked_markup_top = '';
+	$hooked_markup_middle = '';
+	$hooked_markup_bottom = '';
 	$entity_info = array();
 	$cirro_entities = array();
 	$link = '';
@@ -102,6 +105,48 @@ function cirro_dash_build() {
 	$types = array();
 	$items = array();
 	$rows = array();
+
+	// Cache content from modules that hook into cirro_dash via hook_for_dash
+	$hook_data = module_invoke_all('for_dash');
+
+	// Set Iterator
+	$i = 0;
+
+	// Loop through array of hooked content if it exists
+	if ( !empty($hook_data) ) {
+
+		// Init
+		$h_content = $hook_data['content'];
+		$h_region  = $hook_data['region'];
+
+		// Add wrapper div
+		$hooked_markup_middle .= '<div id="hooked-markup">';
+
+		// Add content to $hooked_markup
+		foreach ( $h_content as $data ) {
+
+			// Determine where markup is going in dashboard
+			switch ( $h_region[$i] ) {
+				case 'top':
+					$hooked_markup_top .= $data;
+					break;
+				case 'middle':
+					$hooked_markup_middle .= $data;
+					break;
+				case 'bottom':
+					$hooked_markup_bottom .= $data;
+					break;
+
+			}
+
+			// Increase itterator
+			$i++;
+		}
+
+		// Close wrapper div
+		$hooked_markup_middle .= '</div>';
+
+	}
 
 	// Add sortable.js to page for table reordering capabilities
 	$mod_path = drupal_get_path('module', 'cirro_dash');
@@ -373,11 +418,13 @@ function cirro_dash_build() {
 	</div>";
 	
 	$html = "
+		$hooked_markup_top
 		$add_content_html
 		<div class=\"row-fluid\">
 			$edit_primary_html
 			$reorder_html
 		</div>
+		$hooked_markup_middle
 		<div class=\"row-fluid\">
 			<div id=\"table-outer-wrapper\" class=\"span12\">
 				<h2>EDIT GENERAL CONTENT</h2>
@@ -385,6 +432,7 @@ function cirro_dash_build() {
 				$table
 			</div>
 		</div>
+		$hooked_markup_bottom
 	";
 
 	return $html;
