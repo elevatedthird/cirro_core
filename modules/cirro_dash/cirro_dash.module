@@ -108,7 +108,7 @@ function cirro_dash_build() {
 
 	// Cache content from modules that hook into cirro_dash via hook_for_dash
 	$hook_data = module_invoke_all('for_dash');
-
+	
 	// Set Iterator
 	$i = 0;
 
@@ -122,25 +122,47 @@ function cirro_dash_build() {
 		// Add wrapper div
 		$hooked_markup_middle .= '<div id="hooked-markup">';
 
-		// Add content to $hooked_markup
-		foreach ( $h_content as $data ) {
+		// Region may or may not be array
+		if ( is_array($h_region) ) { 
+			$switch = $h_region[$i];
+			
+			// Add content to $hooked_markup
+			foreach ( $h_content as $data ) {
+				
+				// Determine where markup is going in dashboard
+				switch ( $switch ) {
+					case 'top':
+						$hooked_markup_top .= $data;
+						break;
+					case 'middle':
+						$hooked_markup_middle .= $data;
+						break;
+					case 'bottom':
+						$hooked_markup_bottom .= $data;
+						break;
+				}
 
+				// Increase itterator
+				$i++;
+			} // /foreach
+
+		} else {
+			
+			$switch = $h_region;
+			
 			// Determine where markup is going in dashboard
-			switch ( $h_region[$i] ) {
+			switch ( $switch ) {
 				case 'top':
-					$hooked_markup_top .= $data;
+					$hooked_markup_top .= $h_content;
 					break;
 				case 'middle':
-					$hooked_markup_middle .= $data;
+					$hooked_markup_middle .= $h_content;
 					break;
 				case 'bottom':
-					$hooked_markup_bottom .= $data;
+					$hooked_markup_bottom .= $h_content;
 					break;
 
 			}
-
-			// Increase itterator
-			$i++;
 		}
 
 		// Close wrapper div
