@@ -209,7 +209,7 @@ function cirro_dash_build() {
 	
 				// Append to the add content links
 				$label = $info['label'];
-				$link = l("<div class=\"span3 action-btn\">+ Add $label</div>", "admin/dash/$mach_name/add", array('html' => TRUE));
+				$link = l("<div class=\"action-btn\">+ Add $label</div>", "admin/dash/$mach_name/add", array('html' => TRUE));
 				$add_content_links .= "$link";
 	
 			}
@@ -234,12 +234,13 @@ function cirro_dash_build() {
 	
 				// Append to the edit primary links
 				$label = $info['label'];
-				$link = l("Edit $label", "admin/dash/$mach_name/1/edit", array('html' => TRUE));
-				$edit_primary_links .= "
-					<div class=\"edit-primary-links\">
-						<i class=\"icon-edit\"></i> <strong>$link</strong>
+				$text = "
+					<div class=\"action-btn primary-btn\">
+						<i class=\"icon-edit icon-white\"></i> $label
 					</div>
 				";
+
+				$edit_primary_links .= l($text, "admin/dash/$mach_name/1/edit", array('html' => TRUE));
 			}
 	
 			// If the entity has the 'weight' property in its dashboard array
@@ -373,7 +374,6 @@ function cirro_dash_build() {
 				$title,
 				$type_label,
 				$author,
-				$created,
 				$updated,
 				$delete
 				)
@@ -398,30 +398,30 @@ function cirro_dash_build() {
 		<div id=\"add-content-wrapper\" class=\"dash-section\">
 			<h2>ADD CONTENT</h2>
 				<div class=\"action-links add-links\">
-					<div class=\"row\">
-						$add_content_links
-					</div>
+					$add_content_links
 			</div>
 		</div>
 	";
 
 	// Build the edit primary html
 	$edit_primary_html = "
-		<div id=\"edit-primary-wrapper\" class=\"span6 dash-section\">
+		<div id=\"edit-primary-wrapper\" class=\"dash-section\">
 			<h2>EDIT PRIMARY PAGES</h2>
-			$edit_primary_links
+			<div class=\"action-links\">
+				$edit_primary_links
+			</div>
 		</div>";
 
 	// Build the reorder html
 	$reorder_html = "
-		<div id=\"weights-wrapper\" class=\"span6 dash-section\">
+		<div id=\"weights-wrapper\" class=\"span3 dash-section\">
 			<h2>REORDER ITEMS</h2>
 			$reorder_links
 		</div>";	
 
 	
 	// Build existing table
-	$header = array('TITLE', 'TYPE', 'AUTHOR', 'CREATED', 'UPDATED', 'DELETE');
+	$header = array('TITLE', 'TYPE', 'AUTHOR', 'UPDATED', 'DELETE');
 
 	$table_vars = array(
 		'header' => $header,
@@ -441,18 +441,16 @@ function cirro_dash_build() {
 	
 	$html = "
 		$hooked_markup_top
+		$edit_primary_html
 		$add_content_html
-		<div class=\"row-fluid\">
-			$edit_primary_html
-			$reorder_html
-		</div>
 		$hooked_markup_middle
 		<div class=\"row-fluid\">
-			<div id=\"table-outer-wrapper\" class=\"span12\">
+			<div id=\"table-outer-wrapper\" class=\"span9\">
 				<h2>EDIT GENERAL CONTENT</h2>
 				$filter
 				$table
 			</div>
+			$reorder_html
 		</div>
 		$hooked_markup_bottom
 	";
