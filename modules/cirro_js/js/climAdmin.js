@@ -4,6 +4,7 @@
  * This script is called in the footer before all other instantiations
  * within the climAdmin theme.
  */
+
 ;(function( Cirro, $, window, document, undefined ){
 
 	"use strict";
@@ -53,10 +54,9 @@
 
 		// Instantiate redactor
 		$textareas.redactor({
-			buttons: buttons,
-			imageUpload: '/admin/dash/js/upload',
-			fileUpload: '/admin/dash/js/upload',
-			allowedTags: ["a", "p", "b", "i"]
+			buttons: ['html', 'formatting', '|', 'bold', 'link', '|', 'unorderedlist', 'orderedlist', 'table'],
+			allowedTags: ["a", "p", "b", "i"],
+			formattingTags: ['p', 'h2',	'h3',	'h4', 'h5', 'h6']
 		});
 
 		// Core multi tools details simple slider
