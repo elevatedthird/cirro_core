@@ -474,6 +474,7 @@ function cirro_core_file_format_bytes($bytes, $precision = 2) {
     return round($bytes, $precision) . $units[$pow]; 
 }
 
+
 /** 
  * Include multi_img tools
  */

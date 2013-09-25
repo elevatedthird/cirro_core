@@ -135,6 +135,13 @@ function cirro_core_entity_edit_page($type, $item, $action = NULL) {
 		</div>
 	";
 
+	// Check for Alias
+	if ( isset($info['url']) ) {
+
+		$alias = cirro_alias_build_forms($item, $info['url']);
+
+	}
+
 	// Check for Children
 	if ( isset($info['children']) ) {
 		
@@ -181,6 +188,7 @@ function cirro_core_entity_edit_page($type, $item, $action = NULL) {
 				$form_wrapped
 			</div>
 			<div class=\"span6\">
+				$alias
 				$children
 				$imgs
 				$files

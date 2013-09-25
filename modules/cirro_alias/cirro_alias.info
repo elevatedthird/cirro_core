@@ -1,0 +1,6 @@
+name = Cirro Alias
+description = Cirro Core Alias Tools
+core = 7.x
+package = Cirro
+
+dependencies[] = cirro_core
