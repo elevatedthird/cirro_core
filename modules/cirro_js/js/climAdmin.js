@@ -56,7 +56,9 @@
 		$textareas.redactor({
 			buttons: ['html', 'formatting', '|', 'bold', 'link', '|', 'unorderedlist', 'orderedlist', 'table'],
 			allowedTags: ["a", "p", "b", "i"],
-			formattingTags: ['p', 'h2',	'h3',	'h4', 'h5', 'h6']
+			formattingTags: ['p', 'h2',	'h3',	'h4', 'h5', 'h6'],
+			iframe: true,
+			css: '/sites/all/themes/clim/css/main.css'
 		});
 
 		// Core multi tools details simple slider
