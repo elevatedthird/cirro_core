@@ -96,11 +96,11 @@ function cirro_dash_build() {
 	$entity_info = array();
 	$cirro_entities = array();
 	$link = '';
-	$add_content_links = '';
-	$add_content_html = '';
-	$edit_primary_links = '';
-	$edit_primary_html = '';
-	$reorder_links = '';
+	$add_links = array();
+	$add_html = '';
+	$primary_links = array();
+	$primary_html = '';
+	$reorder_links = array();
 	$reorder_html = '';
 	$types = array();
 	$items = array();
@@ -209,8 +209,8 @@ function cirro_dash_build() {
 	
 				// Append to the add content links
 				$label = $info['label'];
-				$link = l("<div class=\"action-btn\">+ Add $label</div>", "admin/dash/$mach_name/add", array('html' => TRUE));
-				$add_content_links .= "$link";
+				$link = l("<div class=\"action-btn\">+ $label</div>", "admin/dash/$mach_name/add", array('html' => TRUE));
+				$add_links[$label] = "$link";
 	
 			}
 
@@ -240,7 +240,7 @@ function cirro_dash_build() {
 					</div>
 				";
 
-				$edit_primary_links .= l($text, "admin/dash/$mach_name/1/edit", array('html' => TRUE));
+				$primary_links[$label] = l($text, "admin/dash/$mach_name/1/edit", array('html' => TRUE));
 			}
 	
 			// If the entity has the 'weight' property in its dashboard array
@@ -249,7 +249,7 @@ function cirro_dash_build() {
 				// Append to the reorder links
 				$label = $info['label'];
 				$link = l("Reorder $label", "admin/dash/weights/$mach_name", array('html' => TRUE));
-				$reorder_links .= "
+				$reorder_links[$label]= "
 					<div class=\"reorder-links\">
 						<i class=\"icon-move\"></i> <strong>$link</strong>
 					</div>";
@@ -392,25 +392,40 @@ function cirro_dash_build() {
 			<h3>$user_link</h3>
 		</div>
 	";
-	
-	// Build the add content html	
-	$add_content_html = "
+
+	// Sort add links
+	ksort($add_links);
+	$add_links = implode('', $add_links);
+
+	// Build the add content html
+	$add_html = "
 		<div id=\"add-content-wrapper\" class=\"dash-section\">
 			<h2>ADD CONTENT</h2>
 				<div class=\"action-links add-links\">
-					$add_content_links
+					$add_links
 			</div>
 		</div>
 	";
 
+	// Sort primary links
+	ksort($primary_links);
+	// Move Home Page to the beginning
+	$primary_links = array('Home Page' => $primary_links['Home Page']) + $primary_links;
+
+	$primary_links = implode('', $primary_links);
+
 	// Build the edit primary html
-	$edit_primary_html = "
+	$primary_html = "
 		<div id=\"edit-primary-wrapper\" class=\"dash-section\">
 			<h2>EDIT PRIMARY PAGES</h2>
 			<div class=\"action-links\">
-				$edit_primary_links
+				$primary_links
 			</div>
 		</div>";
+
+	// Sort reorder links
+	ksort($reorder_links);
+	$reorder_links = implode('', $reorder_links);
 
 	// Build the reorder html
 	$reorder_html = "
@@ -441,9 +456,9 @@ function cirro_dash_build() {
 	
 	$html = "
 		$hooked_markup_top
-		$edit_primary_html
+		$primary_html
 		$hooked_markup_middle
-		$add_content_html
+		$add_html
 		<div class=\"row-fluid\">
 			<div id=\"table-outer-wrapper\" class=\"span9\">
 				<h2>EDIT GENERAL CONTENT</h2>
