@@ -138,7 +138,7 @@ function cirro_core_entity_edit_page($type, $item, $action = NULL) {
 	// Check for Alias
 	if ( isset($info['url']) ) {
 
-		$alias = cirro_alias_build_forms($item, $info['url']);
+		$alias = cirro_alias_entity_build_forms($item, $info['url']);
 
 	}
 

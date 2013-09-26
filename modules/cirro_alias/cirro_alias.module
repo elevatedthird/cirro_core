@@ -5,265 +5,83 @@
  */
 
 /**
+ * Implements hook_permission();
+ */
+function cirro_alias_permission() {
+	
+	return array(
+		'cirro manage alias' => array(
+			'title' => 'Manage Aliases',
+			'description' => 'Manage entity and global aliases'
+		),
+	);
+}
+
+/**
  * Implements hook_menu();
  */
 function cirro_alias_menu() {
 	// Init
 	$items = array();
 
+	// Manage page
+	$items['admin/dash/alias'] = array(
+		'title' => 'Manage Aliases',
+		'page callback' => 'cirro_alias_page',
+		'access arguments' => array('cirro manage alias'),
+		'file' => 'manage_forms.inc'
+	);
+
 	$items['admin/dash/alias/%/delete'] = array(
 		'title' => 'Delete Alias',
 		'page callback' => 'drupal_get_form',
 		'page arguments' => array('cirro_alias_delete_form', 3),
-		'access arguments' => array('access content'),
+		'access arguments' => array('cirro manage alias'),
+		'file' => 'entity_forms.inc'
 	);
 
 	return $items;
 }
 
 /**
- * Build alias section.
+ * Implements hook_for_dash
  */
-function cirro_alias_build_forms($item, $url_info) {
-	// Init
-	$html = '';
+function cirro_alias_for_dash(){
 
-	// Check for Add
-	if ( $item === 'add' ) {
-		$html = '
-			<div class=\"alias-form-wrapper\">
-				<div class=\"title-wrapper\">
-					<h2>URL Aliases</h2>
-				</div>
-				<div class=\"note-wrapper\">
-					<h4>Finish creating item in order manage aliases</h4>
-				</div>
-			</div>
-		';
+	// Init add blog and moderate comments
+	$path = 'admin/dash/alias';
+	$txt = 'Manage Aliases';
 
-		return $html;
-	}
-
-	// Secondary Init
-	$link = '';
-	$aliases = '';
-	$root = $url_info['root'];
-	$id = $item->id;
-
-	// Build view link
-	$root = str_replace('%', $item->id, $root);
-	$options = array(
-		'attributes' => array(
-			'class' => array('btn', 'btn-primary'),
-			'target' => '_blank'
-		)
+	
+	// Determine classes and IDs for link
+	$attributes = array(
+		'class' => 'span3 action-btn'
 	);
-	$link = "<a class=\"btn btn-primary\"href=\"/$root\">View Item</a>";
 
-	// Check for alias
-	if ( isset($url_info['alias']) && $url_info['alias'] ) {
+	// Build opts array()
+	$opts = array( 'attributes' => $attributes );
 
-		$rows = '';
+	// Use drupal's l() top build dynamic link
+	$link = l( $txt, $path, $opts );
 
-		// Alias Table
-		$query_string = '
-			SELECT *
-				FROM url_alias
-				WHERE source = :root
-				ORDER BY alias
-		';
-		$query = db_query($query_string, array(':root' => $root));
-		$paths = $query->fetchAll();
-
-		foreach ( $paths as $path ) {
-
-			$pid = $path->pid;
-			$alias = $path->alias;
-
-			$options = array(
-				'html' => TRUE,
-				'query' => array(
-					'destination' => current_path(),
-				),
-				'attributes' => array(
-					'class' => array('btn btn-small'),
-					'title' => 'Delete Alias'
-				),
-			);
-			$icon = '<i class="icon-remove"></i> ';
-			$delete = l($icon, "admin/dash/alias/$pid/delete", $options);
-
-			$options = array(
-				'html' => TRUE,
-				'attributes' => array(
-					'class' => array('btn btn-small'),
-					'target' => '_blank',
-				),
-			);
-			$test = l('Test', $alias, $options);
-
-			$rows .= "
-				<tr><td>$alias</td><td>$test $delete</td></tr>
-			";
-		}
-
-		$table = "
-			<table class=\"table table-bordered table-striped\">
-				<thead>
-					<tr><th>Alias</th><th>Actions</th></tr>
-				</thead>
-				<tbody>
-					$rows
-				</tbody>
-			</table>
-		";
-
-		$aliases .= $table;
-
-		// Add form
-		$form = drupal_get_form('cirro_alias_form', $root, $id);
-		$add_form = drupal_render($form);
-
-		$aliases .= $add_form;
-
-	}
-
+	// Build markup for blog section
 	$html = "
-		<div class=\"alias-form-wrapper\">
-			<div class=\"title-wrapper\">
-				<h2>URL Aliases</h2>
-			</div>
+		<h2>Aliases</h2>
+		<div class=\"action-links\">
 			$link
-			$aliases
 		</div>
 	";
 
-	return $html;
-}
 
-/**
- * Build alias add form.
- */
-function cirro_alias_form($form, &$form_state, $root, $id) {
-	// Init
-	$form = array();
-
-	$form['id'] = array(
-		'#type' => 'hidden',
-		'#value' => $id
+	// Return for dashboard
+	return array(
+		'content' => $html, 
+		'region' => 'middle'
 	);
-
-	$form['root'] = array(
-		'#type' => 'hidden',
-		'#value' => $root
-	);
-
-	$form['alias'] = array(
-		'#type' => 'textfield',
-		'#title' => 'Alias URL',
-		'#required' => TRUE,
-	);
-
-	$form['submit'] = array(
-		'#type' => 'submit',
-		'#value' => 'Save',
-		// '#disabled' => TRUE,
-	);
-
-	return $form;
-}
-
-/**
- * Validate alias form.
- */
-function cirro_alias_form_validate($form, &$form_state) {
-
-	$alias = $form_state['values']['alias'];
-
-	// Check for bad characters
-	// if ( !valid_url($alias, TRUE) ) {
-	// 	form_set_error('alias', 'Must be a valid URL which only contains: a-z 0-9 - _ /');
-	// }
-
-	// Check if alias alrady exists
 
 }
 
 /**
- * Submit alias form
+ * Include entity forms.
  */
-function cirro_alias_form_submit($form, &$form_state) {
-	$values = $form_state['values'];
-	$root = $values['root'];
-	$alias = $values['alias'];
-
-	$alias = strtolower(str_replace(' ', '-', $alias));
-
-	$path = array(
-		'source' => $root,
-		'alias' => $alias,
-	);
-
-	path_save($path);
-
-	drupal_set_message('Alias Saved');
-}
-
-/**
- * Alias delete form
- */
-function cirro_alias_delete_form($form, &$form_state, $pid) {
-
-	// Init
-	$form = array();
-	$title = 'Delete Alias';
-	$yes = 'Yes, I am sure. Delete this alias forever!';
-
-	// Get breadcrumb
-	// $breadcrumb = cirro_core_build_breadcrumb($item);
-	
-	// Replace item text with link
-	// array_pop($breadcrumb);
-	// $url = "admin/dash/{$item->type}/$id/edit";
-	// $breadcrumb[] = l($title, $url);
-	
-	// // Add delete text
-	// $breadcrumb[] = 'DELETE';
-	
-	// drupal_set_breadcrumb($breadcrumb);
-
-	// Add pid to form
-	$form['pid'] = array(
-		'#type' => 'hidden',
-		'#value' => $pid,
-	);
-
-	// Build confirm args
-	$question = "Confirm Alias Delete";
-	$path = "admin/dash/alias";
-	$description = "
-		
-		Are you sure you want to delete this URL alias?<br />
-		<div class=\"alert\">This cannot be undone!</div>
-	";
-
-	// Build confirm form
-	$form = confirm_form($form, $question, $path, $description, $yes);
-
-	return $form;
-
-}
-
-/**
- * Alias delete form
- */
-function cirro_alias_delete_form_submit($form, &$form_state) {
-
-	// Init
-	$pid = $form_state['values']['pid'];
-
-	path_delete($pid);
-
-	drupal_set_message('Alias deleted');
-
-}
+module_load_include('inc', 'cirro_alias', 'entity_forms');

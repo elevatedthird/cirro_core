@@ -442,8 +442,8 @@ function cirro_dash_build() {
 	$html = "
 		$hooked_markup_top
 		$edit_primary_html
-		$add_content_html
 		$hooked_markup_middle
+		$add_content_html
 		<div class=\"row-fluid\">
 			<div id=\"table-outer-wrapper\" class=\"span9\">
 				<h2>EDIT GENERAL CONTENT</h2>
