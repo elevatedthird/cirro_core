@@ -76,7 +76,8 @@ function cirro_alias_for_dash(){
 	// Return for dashboard
 	return array(
 		'content' => $html, 
-		'region' => 'middle'
+		'region' => 'middle',
+		'permission' => 'cirro manage alias'
 	);
 
 }

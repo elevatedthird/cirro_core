@@ -9,7 +9,7 @@
  */
 function cirro_alias_entity_build_forms($item, $url_info) {
 	// Check for perms
-	if ( !user_access('cirro manage aliase') ) return '';
+	if ( !user_access('cirro manage alias') ) return '';
 
 	// Init
 	$html = '';

@@ -113,7 +113,7 @@ function cirro_dash_build() {
 	$i = 0;
 
 	// Loop through array of hooked content if it exists
-	if ( !empty($hook_data) ) {
+	if ( !empty($hook_data) && user_access($hook_data['permission'])) {
 
 		// Init
 		$h_content = $hook_data['content'];
