@@ -50,19 +50,13 @@ function cirro_alias_for_dash(){
 
 	// Init add blog and moderate comments
 	$path = 'admin/dash/alias';
-	$txt = 'Manage Aliases';
-
-	
-	// Determine classes and IDs for link
-	$attributes = array(
-		'class' => 'span3 action-btn'
-	);
-
-	// Build opts array()
-	$opts = array( 'attributes' => $attributes );
+	$txt = '
+		<div class="action-btn primary-btn">
+			Manage Aliases
+		</div>';
 
 	// Use drupal's l() top build dynamic link
-	$link = l( $txt, $path, $opts );
+	$link = l( $txt, $path, array('html' => TRUE));
 
 	// Build markup for blog section
 	$html = "
