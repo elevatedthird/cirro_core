@@ -82,6 +82,18 @@ function cirro_alias_for_dash(){
 }
 
 /**
+ * Cleanup alias strings.
+ */
+function cirro_alias_cleanup($alias) {
+	$alias = strtolower($alias);
+	$alias = str_replace(' ', '-', $alias);
+	// Get rid of any unapproved characters
+	$alias = preg_replace('/[^a-zA-Z\d\.\/-]/', '', $alias);
+
+	return $alias;
+}
+
+/**
  * Include entity forms.
  */
 module_load_include('inc', 'cirro_alias', 'entity_forms');

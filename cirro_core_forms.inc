@@ -93,6 +93,7 @@ function cirro_core_entity_edit_page($type, $item, $action = NULL) {
 	$label = $info['label'];
 	$schema = drupal_get_schema($info['base table']);
 	$id_field = $info['entity keys']['id'];
+	$alias = '';
 	$children = '';
 	$imgs = '';
 	$files = '';

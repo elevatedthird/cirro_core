@@ -108,14 +108,34 @@ function cirro_alias_form($form, &$form_state) {
 }
 
 /**
+ * Validate add/edit form.
+ */
+function cirro_alias_form_validate(&$form, &$form_state) {
+	$alias = cirro_alias_cleanup($form_state['values']['alias']);
+
+	// Check if alias alrady exists
+	$query_string = "
+		SELECT *
+			FROM url_alias
+			WHERE alias = :alias
+	";
+	$query = db_query($query_string, array(':alias' => $alias));
+
+	if ( ($path = $query->fetchObject()) !== FALSE ) {
+		form_set_error('alias', "'$alias' is already an alias for $path->source");
+	}
+}
+
+/**
  * Add/edit form submit
  */
 function cirro_alias_form_submit(&$form, &$form_state) {
 	$values = $form_state['values'];
+	$alias = cirro_alias_cleanup($values['alias']);
 
 	$path = array(
 		'source' => $values['source'],
-		'alias' => $values['alias'],
+		'alias' => $alias,
 	);
 
 	path_save($path);

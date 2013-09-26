@@ -33,11 +33,11 @@ function cirro_alias_entity_build_forms($item, $url_info) {
 	// Secondary Init
 	$link = '';
 	$aliases = '';
-	$root = $url_info['root'];
 	$id = $item->id;
 
 	// Build view link
-	$root = str_replace('%', $item->id, $root);
+	$root = str_replace('%', $item->id, $url_info['root']);
+	$url_info['root'] = $root;
 	$options = array(
 		'attributes' => array(
 			'class' => array('btn', 'btn-primary'),
@@ -107,7 +107,7 @@ function cirro_alias_entity_build_forms($item, $url_info) {
 		$aliases .= $table;
 
 		// Add form
-		$form = drupal_get_form('cirro_alias_entity_form', $root, $id);
+		$form = drupal_get_form('cirro_alias_entity_form', $url_info, $id);
 		$add_form = drupal_render($form);
 
 		$aliases .= $add_form;
@@ -130,9 +130,10 @@ function cirro_alias_entity_build_forms($item, $url_info) {
 /**
  * Build alias add form.
  */
-function cirro_alias_entity_form($form, &$form_state, $root, $id) {
+function cirro_alias_entity_form($form, &$form_state, $url_info, $id) {
 	// Init
 	$form = array();
+	$root = $url_info['root'];
 
 	$form['id'] = array(
 		'#type' => 'hidden',
@@ -150,6 +151,17 @@ function cirro_alias_entity_form($form, &$form_state, $root, $id) {
 		'#required' => TRUE,
 	);
 
+	// Check for prefix
+	if ( isset($url_info['prefix']) ) {
+		$prefix = $url_info['prefix'];
+		// Default value
+		$form['alias']['#default_value'] = $prefix;
+
+		// Description
+		$description = "It is recommended to use a prefix of $prefix";
+		$form['alias']['#description'] = $description;
+	}
+
 	$form['submit'] = array(
 		'#type' => 'submit',
 		'#value' => 'Save',
@@ -164,14 +176,19 @@ function cirro_alias_entity_form($form, &$form_state, $root, $id) {
  */
 function cirro_alias_entity_form_validate($form, &$form_state) {
 
-	$alias = $form_state['values']['alias'];
-
-	// Check for bad characters
-	// if ( !valid_url($alias, TRUE) ) {
-	// 	form_set_error('alias', 'Must be a valid URL which only contains: a-z 0-9 - _ /');
-	// }
+	$alias = cirro_alias_cleanup($form_state['values']['alias']);
 
 	// Check if alias alrady exists
+	$query_string = "
+		SELECT *
+			FROM url_alias
+			WHERE alias = :alias
+	";
+	$query = db_query($query_string, array(':alias' => $alias));
+
+	if ( ($path = $query->fetchObject()) !== FALSE ) {
+		form_set_error('alias', "'$alias' is already an alias for $path->source");
+	}
 
 }
 
@@ -181,9 +198,7 @@ function cirro_alias_entity_form_validate($form, &$form_state) {
 function cirro_alias_entity_form_submit($form, &$form_state) {
 	$values = $form_state['values'];
 	$root = $values['root'];
-	$alias = $values['alias'];
-
-	$alias = strtolower(str_replace(' ', '-', $alias));
+	$alias = cirro_alias_cleanup($values['alias']);
 
 	$path = array(
 		'source' => $root,
