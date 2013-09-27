@@ -51,7 +51,6 @@
 		var $textareas = $( Cirro.WYSIWYG.fieldSelector );
 		var buttons = Cirro.WYSIWYG.buttons;
 
-
 		// Instantiate redactor
 		$textareas.redactor({
 			buttons: ['html', 'formatting', '|', 'bold', 'link', '|', 'unorderedlist', 'orderedlist', 'table'],
@@ -105,4 +104,4 @@
 
 	});	
 
-}( window.Cirro = window.Cirro || {}, jQuery, window, document ));
+}( window.Cirro = window.Cirro || {}, jQuery_1_10_2, window, document ));
