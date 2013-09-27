@@ -1,0 +1,1 @@
+window.jQuery_1_10_2 = jQuery.noConflict(true);

@@ -47,8 +47,12 @@ function cirro_js_init() {
 	if ( $theme === 'climAdmin' ) {
 
 		// JS added to climAdmin pages only
-		$js_path = "$module_path/js/redactor.min.js";
+		$js_path = "$module_path/js/libs/jquery-1.10.2.js";
 		drupal_add_js($js_path, array('weight' => 30));
+		$js_path = "$module_path/js/noConflict.js";
+		drupal_add_js($js_path, array('weight' => 40));
+		$js_path = "$module_path/js/libs/redactor-8.2.5.js";
+		drupal_add_js($js_path, array('weight' => 50));
 		$js_path = "$module_path/js/climAdmin.js";
 		drupal_add_js($js_path, array('scope' => 'footer', 'weight' => 0));
 
