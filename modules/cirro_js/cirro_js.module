@@ -53,11 +53,15 @@ function cirro_js_init() {
 		drupal_add_js($js_path, array('weight' => 40));
 		$js_path = "$module_path/js/libs/redactor-8.2.5.js";
 		drupal_add_js($js_path, array('weight' => 50));
+		$js_path = "$module_path/js/libs/jquery-ui-1.10.3.custom.min.js";
+		drupal_add_js($js_path, array('weight' => 60));
 		$js_path = "$module_path/js/climAdmin.js";
 		drupal_add_js($js_path, array('scope' => 'footer', 'weight' => 0));
 
 		// CSS added to climAdmin pages only
 		$css_path = "$module_path/css/redactor.css";
+		drupal_add_css($css_path);
+		$css_path = "$module_path/css/jquery-ui-1.10.3.custom.css";
 		drupal_add_css($css_path);
 
 	}

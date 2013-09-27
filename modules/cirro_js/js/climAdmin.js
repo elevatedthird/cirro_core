@@ -16,11 +16,9 @@
 
 	// If the Redactor jQuery plugin is not defined
 	if ( typeof $.fn.redactor !== "function" ) {
-
 		// Call error and stop the function
 		Cirro.error( "The Redactor Plugin was not added to the page." );
 		return;
-
 	}
 
 	// If the Cirro WYSIWYG object has been overridden and is now undefined
@@ -29,11 +27,9 @@
 		typeof Cirro.WYSIWYG.fieldSelector !== "string" ||
 		typeof Cirro.WYSIWYG.buttons !== "object"
 	) {
-
 		// Call error and stop the function
 		Cirro.error( "The WYSIWYG options are missing." );
-		return;
-		
+		return;	
 	}
 
 	/**
@@ -47,6 +43,7 @@
 	$document.ready(function() {
 
 		// Redactor WYSIWYG
+		
 		// Init
 		var $textareas = $( Cirro.WYSIWYG.fieldSelector );
 		var buttons = Cirro.WYSIWYG.buttons;
@@ -57,6 +54,11 @@
 			allowedTags: ["a", "p", "b", "i"],
 			formattingTags: ['p', 'h2',	'h3',	'h4', 'h5', 'h6']
 		});
+
+		// jQuery UI Date Picker (use drupal jquery so we don't
+		// have to hack jQuery UI closures)
+		var $datePicker = window.jQuery('input.date-picker');
+		$datePicker.datepicker();
 
 		// Core multi tools details simple slider
 
