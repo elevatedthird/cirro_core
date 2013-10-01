@@ -111,7 +111,7 @@ function cirro_dash_build() {
 	
 	// Set Iterator
 	$i = 0;
-dsm($hook_data);
+
 	// Loop through array of hooked content if it exists
 	if ( !empty($hook_data) ) {
 
