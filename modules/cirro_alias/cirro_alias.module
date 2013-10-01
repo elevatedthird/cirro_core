@@ -59,12 +59,7 @@ function cirro_alias_for_dash(){
 	$link = l( $txt, $path, array('html' => TRUE));
 
 	// Build markup for blog section
-	$html = "
-		<h2>Aliases</h2>
-		<div class=\"action-links\">
-			$link
-		</div>
-	";
+	$html = $link;
 
 
 	// Return for dashboard

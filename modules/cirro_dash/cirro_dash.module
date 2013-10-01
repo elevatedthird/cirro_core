@@ -119,9 +119,6 @@ function cirro_dash_build() {
 		$h_content = $hook_data['content'];
 		$h_region  = $hook_data['region'];
 
-		// Add wrapper div
-		$hooked_markup_middle .= '<div id="hooked-markup">';
-
 		// Region may or may not be array
 		if ( is_array($h_region) ) { 
 			$switch = $h_region[$i];
@@ -135,7 +132,10 @@ function cirro_dash_build() {
 						$hooked_markup_top .= $data;
 						break;
 					case 'middle':
-						$hooked_markup_middle .= $data;
+						$hooked_markup_middle .= "
+
+							$data
+						";
 						break;
 					case 'bottom':
 						$hooked_markup_bottom .= $data;
@@ -165,8 +165,15 @@ function cirro_dash_build() {
 			}
 		}
 
-		// Close wrapper div
-		$hooked_markup_middle .= '</div>';
+// Add wrapper div
+		$hooked_markup_middle = "
+			<div id=\"hooked-markup\">
+				<h2>Tools</h2>
+				<div class=\"action-links\">
+					$hooked_markup_middle
+				</div>
+			</div>
+		";
 
 	}
 
