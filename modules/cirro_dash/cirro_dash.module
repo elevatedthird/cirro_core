@@ -111,13 +111,14 @@ function cirro_dash_build() {
 	
 	// Set Iterator
 	$i = 0;
-
+dsm($hook_data);
 	// Loop through array of hooked content if it exists
-	if ( !empty($hook_data) && user_access($hook_data['permission'])) {
+	if ( !empty($hook_data) ) {
 
 		// Init
 		$h_content = $hook_data['content'];
 		$h_region  = $hook_data['region'];
+		$h_perms = $hook_data['permission'];
 
 		// Region may or may not be array
 		if ( is_array($h_region) ) { 
@@ -126,6 +127,9 @@ function cirro_dash_build() {
 			// Add content to $hooked_markup
 			foreach ( $h_content as $data ) {
 				
+				// Check permission
+				if ( !user_access($h_perms[$i]) ) continue;
+
 				// Determine where markup is going in dashboard
 				switch ( $switch ) {
 					case 'top':
