@@ -172,7 +172,6 @@ function cirro_dash_build() {
 // Add wrapper div
 		$hooked_markup_middle = "
 			<div id=\"hooked-markup\">
-				<h2>Tools</h2>
 				<div class=\"action-links\">
 					$hooked_markup_middle
 				</div>

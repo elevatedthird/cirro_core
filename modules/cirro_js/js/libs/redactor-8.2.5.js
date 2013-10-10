@@ -3877,6 +3877,7 @@ var RLANG = {
 				{
 					// Remove bizarre <pre> tag wrappers around our json data:
 					var rawString = d.body.innerHTML;
+					console.log(rawString);
 					var jsonString = rawString.match(/\{(.|\n)*\}/)[0];
 					var json = $.parseJSON(jsonString);
 

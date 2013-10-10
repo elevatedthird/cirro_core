@@ -50,7 +50,8 @@
 
 		// Instantiate redactor
 		$textareas.redactor({
-			buttons: ['html', 'formatting', '|', 'bold', 'link', '|', 'unorderedlist', 'orderedlist', 'table'],
+			buttons: buttons,
+			imageUpload: '/admin/dash/js/upload',
 			allowedTags: ["a", "p", "b", "i"],
 			formattingTags: ['p', 'h2',	'h3',	'h4', 'h5', 'h6'],
 			iframe: true,

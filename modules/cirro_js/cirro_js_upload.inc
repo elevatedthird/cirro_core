@@ -38,8 +38,6 @@ function cirro_js_upload() {
 
 		$file = file_save_upload($rawName, array(), 'public://redactor_imgs', FILE_EXISTS_REPLACE);
 
-		variable_set('will_file', $file);
-
 		$file->status = FILE_STATUS_PERMANENT;
 		file_save($file);
 
