@@ -108,7 +108,7 @@ function cirro_dash_build() {
 
 	// Cache content from modules that hook into cirro_dash via hook_for_dash
 	$hook_data = module_invoke_all('for_dash');
-	
+
 	// Set Iterator
 	$i = 0;
 
@@ -128,7 +128,7 @@ function cirro_dash_build() {
 			foreach ( $h_content as $data ) {
 				
 				// Check permission
-				if ( !user_access($h_perms[$i]) ) continue;
+				// if ( !user_access($h_perms[$i]) ) continue;
 
 				// Determine where markup is going in dashboard
 				switch ( $switch ) {
