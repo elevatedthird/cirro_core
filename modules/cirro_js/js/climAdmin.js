@@ -47,13 +47,14 @@
 		// Init
 		var $textareas = $( Cirro.WYSIWYG.fieldSelector );
 		var buttons = Cirro.WYSIWYG.buttons;
+		var formatting = Cirro.WYSIWYG.formatting;
 
 		// Instantiate redactor
 		$textareas.redactor({
 			buttons: buttons,
 			imageUpload: '/admin/dash/js/upload',
 			allowedTags: ["a", "p", "b", "i"],
-			formattingTags: ['p', 'h2',	'h3',	'h4', 'h5', 'h6'],
+			formattingTags: formatting,
 			iframe: true,
 			css: '/sites/all/themes/clim/css/main.css'
 		});
