@@ -321,37 +321,37 @@ function cirro_core_access_callback($type, $action) {
  */
 function cirro_core_form_alter(&$form, &$form_state, $form_id) {
 
-	// Hide admin from user_admin table
-	if ( $form_id === 'user_admin_account' ) {
+	// // Hide admin from user_admin table
+	// if ( $form_id === 'user_admin_account' ) {
 
-		// Unset admin role update options
-		$roles = $form['options']['operation']['#options']['Add a role to the selected users'];
-		$roles = array_flip($roles);
-		unset($form['options']['operation']['#options']['Add a role to the selected users'][$roles['administrator']]);
+	// 	// Unset admin role update options
+	// 	$roles = $form['options']['operation']['#options']['Add a role to the selected users'];
+	// 	$roles = array_flip($roles);
+	// 	unset($form['options']['operation']['#options']['Add a role to the selected users'][$roles['administrator']]);
 
-		$roles = $form['options']['operation']['#options']['Remove a role from the selected users'];
-		$roles = array_flip($roles);
-		unset($form['options']['operation']['#options']['Remove a role from the selected users'][$roles['administrator']]);
+	// 	$roles = $form['options']['operation']['#options']['Remove a role from the selected users'];
+	// 	$roles = array_flip($roles);
+	// 	unset($form['options']['operation']['#options']['Remove a role from the selected users'][$roles['administrator']]);
 
-		// Remove admin user from table
-		unset($form['accounts']['#options'][1]);
+	// 	// Remove admin user from table
+	// 	unset($form['accounts']['#options'][1]);
 
-	}
+	// }
 
-	// Hide admin role option from user create form
-	if ( $form_id === 'user_register_form' ) {
-		$roles = $form['account']['roles']['#options'];
-		$roles = array_flip($roles);
-		unset($form['account']['roles']['#options'][$roles['administrator']]);
+	// // Hide admin role option from user create form
+	// if ( $form_id === 'user_register_form' ) {
+	// 	$roles = $form['account']['roles']['#options'];
+	// 	$roles = array_flip($roles);
+	// 	unset($form['account']['roles']['#options'][$roles['administrator']]);
 
-	}
+	// }
 
-	// Hide admin role option from user edit form
-	if ( $form_id === 'user_profile_form' ) {
-		$roles = $form['account']['roles']['#options'];
-		$roles = array_flip($roles);
-		unset($form['account']['roles']['#options'][$roles['administrator']]);
-	}
+	// // Hide admin role option from user edit form
+	// if ( $form_id === 'user_profile_form' ) {
+	// 	$roles = $form['account']['roles']['#options'];
+	// 	$roles = array_flip($roles);
+	// 	unset($form['account']['roles']['#options'][$roles['administrator']]);
+	// }
 
 }
 
