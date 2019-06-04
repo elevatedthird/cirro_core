@@ -9,7 +9,7 @@
  * Weights reorder form.
  */
 function cirro_core_weight_form($form, &$form_state, $type) {
-	
+
 	// Init
 	$info = entity_get_info($type);
 	$label = $info['label'];
@@ -18,7 +18,7 @@ function cirro_core_weight_form($form, &$form_state, $type) {
 	$form = array();
 	$form['items'] = array();
 	$form['items']['#tree'] = TRUE;
-	
+
 	// Build weight options
 	$weight_options = array();
 
@@ -29,34 +29,34 @@ function cirro_core_weight_form($form, &$form_state, $type) {
 	}
 
 	// Query items
-	$query_string = "
+	$query_string = '
 		SELECT id, title, weight
-			FROM $table
-			ORDER BY weight, created
-	";
-	
-	$query = db_query($query_string);
-	
+		FROM {:tablename}
+		ORDER BY weight, created
+	';
+
+	$query = db_query($query_string, array(':tablename' => $table));
+
 	$items = $query->fetchAll();
-	
+
 	// Add type to form
 	$form['type'] = array(
 		'#type' => 'hidden',
 		'#value' => $type,
 	);
-	
+
 	// Add id_field t- form
 	$form['id_field'] = array(
 		'#type' => 'hidden',
 		'#value' => $id_field,
 	);
-	
+
 	// Loop through items
 	foreach ( $items as $item ) {
-		
+
 		// Build fields
 		$fields = array();
-		
+
 		// ID
 		$fields[$id_field] = array(
 			'#type' => 'hidden',
@@ -86,16 +86,16 @@ function cirro_core_weight_form($form, &$form_state, $type) {
 		'#type' => 'submit',
 		'#value' => 'Save',
 	);
-	
+
 	return $form;
-	
+
 }
 
 /**
  * Item weights form submit.
  */
 function cirro_core_weight_form_submit($form, &$form_state) {
-	
+
 	// Init
 	$values = $form_state['values'];
 	$type = $values['type'];
@@ -115,7 +115,7 @@ function cirro_core_weight_form_submit($form, &$form_state) {
 
 	// Display success message
 	drupal_set_message('Item order updated');
-	
+
 }
 
 /**
@@ -125,47 +125,47 @@ function cirro_core_weight_form_submit($form, &$form_state) {
  *   Themeing variables array
  */
 function theme_cirro_core_weight_form($variables) {
-	
+
 	// Init
 	$output = '';
 	$rows = array();
-	
+
 	// Load form array
 	$form = $variables['form'];
-	
+
 	// Activate tabledrag shiz
 	drupal_add_tabledrag('draggable-table', 'order', 'sibling', 'weight-group');
-	
+
 	// Loop through form Elements
 	foreach ( element_children($form['items']) as $key ) {
-		
+
 		// Init
 		$element = array();
 		$data = '';
 		$row = array();
-		
+
 		// Skip none numeric keys
 		if ( !is_numeric($key) ) continue;
-		
+
 		// Load element
 		$element = &$form['items'][$key];
-		
+
 		// Add class to weight field
 		$element['weight']['#attributes']['class'] = array('weight-group');
-		
+
 		// Put data fields together
 		$data .= drupal_render($element['id']);
-		
+
 		// Build row
 		$row = array();
 		$row[] = drupal_render($element['name']) . $data;
 		$row[] = drupal_render($element['weight']);
-		
+
 		// Add to rows
 		$rows[] = array( 'data' => $row, 'class' => array('draggable'));
 
 	}
-	
+
 	// Define headers
 	$headers = array(
 		'Name',
@@ -189,13 +189,13 @@ function theme_cirro_core_weight_form($variables) {
 		'sticky' => FALSE,
 		'empty' => 'No Items Found',
 	);
-	
+
 	// Add table to output
 	$table = theme_table($table_vars);
-	
+
 	// Render remaining form elements
 	$form_children = drupal_render_children($form);
-	
+
 	// Build output with wrapper
 	$output = "
 		<div class=\"span8\">
@@ -203,7 +203,7 @@ function theme_cirro_core_weight_form($variables) {
 			$form_children
 		</div>
 	";
-	
+
 	return $output;
 
 }

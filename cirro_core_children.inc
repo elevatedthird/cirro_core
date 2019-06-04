@@ -6,16 +6,16 @@
  */
 
 function cirro_core_children_build_forms($item, $children_types, $type, $id) {
-	
+
 	// Init
 	$children = '';
-	
+
 			// Check for Add page
 		if ( $item === 'add' ) {
-		
+
 			// Loop through children
 			foreach ( $children_types as $child_type => $child_label ) {
-				
+
 				// Build child form placeholder
 				$child_form = "
 					<div class=\"children-form-wrapper\">
@@ -27,15 +27,15 @@ function cirro_core_children_build_forms($item, $children_types, $type, $id) {
 						</div>
 					</div>
 				";
-				
+
 				// Add to children markup
 				$children .= $child_form;
 
 			}
-		
-		
+
+
 		} else {
-			
+
 			// Edit page
 
 			// Loop through children
@@ -46,19 +46,20 @@ function cirro_core_children_build_forms($item, $children_types, $type, $id) {
 				$table = $child_info['base table'];
 
 				// Query children
-				$query_string = "
+				$query_string = '
 					SELECT id, title, type, weight
-					FROM $table
+					FROM {:table_id}
 					WHERE parent_type = :parent_type
 					AND parent_id = :parent_id
 					ORDER BY weight, created
-				";
-	
+				';
+
 				$query_options = array(
+				  ':table_id' => $table,
 					':parent_type' => $type,
 					':parent_id' => $id
 				);
-	
+
 				$query = db_query($query_string, $query_options);
 
 				$child_items = $query->fetchAll();
@@ -80,7 +81,7 @@ function cirro_core_children_build_forms($item, $children_types, $type, $id) {
 
 				// Check for limit
 				if ( isset($info['limit']) && $info['limit'] >= $child_count ) {
-					
+
 					// Replace add button with limit warning
 					$add_button = "
 						<div class=\"alert alert-info\">
@@ -88,7 +89,7 @@ function cirro_core_children_build_forms($item, $children_types, $type, $id) {
 							Delete some items in order to add more.
 						</div>
 					";
-					
+
 				} else {
 
 					// Build create form
@@ -100,13 +101,13 @@ function cirro_core_children_build_forms($item, $children_types, $type, $id) {
 					);
 
 					$create_form = drupal_get_form("cirro_core_{$child_type}_child_create", $options);
-					
+
 					$create_form_rendered = drupal_render($create_form);
-					
+
 				}
-				
+
 				// Build link to add form
-				
+
 				// Build children form element
 				$children_form = "
 					<div class=\"children-form-wrapper box-white\">
@@ -125,13 +126,13 @@ function cirro_core_children_build_forms($item, $children_types, $type, $id) {
 
 				// Add to imgs markup
 				$children .= $children_form;
-				
+
 			}
-			
+
 		}
-	
+
 	return $children;
-	
+
 }
 
 /**
@@ -144,7 +145,7 @@ function cirro_core_children_build_forms($item, $children_types, $type, $id) {
  *   child_label:
  */
 function cirro_core_child_create_form($form, &$form_state, $options) {
-	
+
 	// Init
 	$form = array();
 	$child_label = $options['child_label'];
@@ -154,22 +155,22 @@ function cirro_core_child_create_form($form, &$form_state, $options) {
 		'#type' => 'hidden',
 		'#value' => $options['parent_id'],
 	);
-	
+
 	$form['parent_type'] = array(
 		'#type' => 'hidden',
 		'#value' => $options['parent_type'],
 	);
-	
+
 	$form['type'] = array(
 		'#type' => 'hidden',
 		'#value' => $options['child_type'],
 	);
-	
+
 	$form['type_label'] = array(
 		'#type' => 'hidden',
 		'#value' => $child_label,
 	);
-	
+
 	// Title field
 	$form['title'] = array(
 		'#type' => 'textfield',
@@ -177,22 +178,22 @@ function cirro_core_child_create_form($form, &$form_state, $options) {
 		'#required' => TRUE,
 		'#default_value' => '',
 	);
-	
+
 	// Submit
 	$form['submit'] = array(
 		'#type' => 'submit',
 		'#value' => "Create $child_label",
-	);	
+	);
 
 	return $form;
-	
+
 }
 
 /**
  * Create child form submit.
  */
 function cirro_core_child_create_form_submit($form, &$form_state) {
-	
+
 	// Init
 	$values = $form_state['values'];
 	$child_type = $values['type'];
@@ -203,20 +204,20 @@ function cirro_core_child_create_form_submit($form, &$form_state) {
 
 	// Cast fields object
 	$fields_obj = (object) $values;
-	
+
 	// Attempt create
 	if ( ( $new_item = $controller->create($fields_obj) ) !== FALSE ) {
-		
+
 		// Set success message
 		drupal_set_message("$child_label created.");
-		
+
 	} else {
-		
+
 		// Set Error
-		drupal_set_message('There was an error creating the child item.', 'error');	
-		
+		drupal_set_message('There was an error creating the child item.', 'error');
+
 	}
-	
+
 }
 
 /**
@@ -230,14 +231,14 @@ function cirro_core_child_create_form_submit($form, &$form_state) {
  *
  */
 function cirro_core_children_weight_form($form, &$form_state, $options) {
-	
+
 	// Init
 	$form = array();
 	$parent_id = $options['parent_id'];
 	$parent_type = $options['parent_type'];
 	$child_type = $options['child_type'];
 	$child_items = $options['child_items'];
-	
+
 	// Build weight options
 	for ( $i = -40; $i <= 40; $i++ ) {
 
@@ -255,7 +256,7 @@ function cirro_core_children_weight_form($form, &$form_state, $options) {
 		'#type' => 'hidden',
 		'#value' => $parent_type,
 	);
-	
+
 	$form['child_type'] = array(
 		'#type' => 'hidden',
 		'#value' => $child_type,
@@ -267,7 +268,7 @@ function cirro_core_children_weight_form($form, &$form_state, $options) {
 
 	// Loop through child items
 	foreach ( $child_items as $item ) {
-		
+
 		// Init
 		$id = $item->id;
 		$item_type = $item->type;
@@ -286,11 +287,11 @@ function cirro_core_children_weight_form($form, &$form_state, $options) {
 			),
 		);
 		$link = l($item->title, "admin/dash/$item_type/$id/edit", $options);
-		
+
 		$fields['link'] = array(
 			'#markup' => $link,
 		);
-		
+
 		// Build delete link
 		$fields['delete'] = array(
 			'#markup' => l(
@@ -308,7 +309,7 @@ function cirro_core_children_weight_form($form, &$form_state, $options) {
 				)
 			),
 		);
-		
+
 		// Weight
 		$fields['weight'] = array(
 			'#type' => 'select',
@@ -316,10 +317,10 @@ function cirro_core_children_weight_form($form, &$form_state, $options) {
 			'#default_value' => $item->weight,
 			'#options' => $weight_options,
 		);
-		
+
 		// Add item to form items
 		$form['items'][$id] = $fields;
-	
+
 	}
 	if ( !empty($child_items) ) {
 
@@ -328,9 +329,9 @@ function cirro_core_children_weight_form($form, &$form_state, $options) {
 			'#type' => 'submit',
 			'#value' => "Update Order",
 		);
-		
+
 	}
-	
+
 	return $form;
 
 }
@@ -373,45 +374,45 @@ function theme_cirro_core_children_weight_form($variables) {
 	// Init
 	$output = '';
 	$rows = array();
-	
+
 	// Load form array
 	$form = $variables['form'];
-	
+
 	// Activate tabledrag shiz
 	drupal_add_tabledrag('draggable-table', 'order', 'sibling', 'weight-group');
-	
+
 	// Loop through form Elements
 	foreach ( element_children($form['items']) as $key ) {
-		
+
 		// Init
 		$element = array();
 		$data = '';
 		$row = array();
-		
+
 		// Skip none numeric keys
 		if ( !is_numeric($key) ) continue;
-		
+
 		// Load element
 		$element = &$form['items'][$key];
-		
+
 		// Add class to weight field
 		$element['weight']['#attributes']['class'] = array('weight-group');
-		
+
 		// Put data fields together
 		$data .= drupal_render($element['link']);
 		$data .= drupal_render($element['id']);
-		
+
 		// Build row
 		$row = array();
 		$row[] = $data;
 		$row[] = drupal_render($element['weight']);
 		$row[] = drupal_render($element['delete']);
-		
+
 		// Add to rows
 		$rows[] = array( 'data' => $row, 'class' => array('draggable'));
 
 	}
-	
+
 	// Define headers
 	$headers = array(
 		'Edit',
@@ -436,13 +437,13 @@ function theme_cirro_core_children_weight_form($variables) {
 		'sticky' => FALSE,
 		'empty' => 'No Children found',
 	);
-	
+
 	// Add table to output
 	$output = theme_table($table_vars);
-	
+
 	// Render remaining form elements
-	$output .= drupal_render_children($form);	
-	
+	$output .= drupal_render_children($form);
+
 	return $output;
 
 }

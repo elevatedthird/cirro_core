@@ -28,8 +28,8 @@ function cirro_alias_page() {
 	// Get aliases
 	$query_string = '
 		SELECT *
-			FROM url_alias
-			ORDER BY source
+		FROM {url_alias}
+		ORDER BY source
 	';
 	$query = db_query($query_string);
 	$paths = $query->fetchAll();
@@ -114,11 +114,11 @@ function cirro_alias_form_validate(&$form, &$form_state) {
 	$alias = cirro_alias_cleanup($form_state['values']['alias']);
 
 	// Check if alias alrady exists
-	$query_string = "
+	$query_string = '
 		SELECT *
-			FROM url_alias
-			WHERE alias = :alias
-	";
+		FROM {url_alias}
+		WHERE alias = :alias
+	';
 	$query = db_query($query_string, array(':alias' => $alias));
 
 	if ( ($path = $query->fetchObject()) !== FALSE ) {

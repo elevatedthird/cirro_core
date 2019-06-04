@@ -54,9 +54,9 @@ function cirro_alias_entity_build_forms($item, $url_info) {
 		// Alias Table
 		$query_string = '
 			SELECT *
-				FROM url_alias
-				WHERE source = :root
-				ORDER BY alias
+			FROM {url_alias}
+			WHERE source = :root
+			ORDER BY alias
 		';
 		$query = db_query($query_string, array(':root' => $root));
 		$paths = $query->fetchAll();
@@ -179,11 +179,11 @@ function cirro_alias_entity_form_validate($form, &$form_state) {
 	$alias = cirro_alias_cleanup($form_state['values']['alias']);
 
 	// Check if alias alrady exists
-	$query_string = "
+	$query_string = '
 		SELECT *
-			FROM url_alias
-			WHERE alias = :alias
-	";
+		FROM {url_alias}
+		WHERE alias = :alias
+	';
 	$query = db_query($query_string, array(':alias' => $alias));
 
 	if ( ($path = $query->fetchObject()) !== FALSE ) {
@@ -222,15 +222,15 @@ function cirro_alias_delete_form($form, &$form_state, $pid) {
 
 	// Get breadcrumb
 	// $breadcrumb = cirro_core_build_breadcrumb($item);
-	
+
 	// Replace item text with link
 	// array_pop($breadcrumb);
 	// $url = "admin/dash/{$item->type}/$id/edit";
 	// $breadcrumb[] = l($title, $url);
-	
+
 	// // Add delete text
 	// $breadcrumb[] = 'DELETE';
-	
+
 	// drupal_set_breadcrumb($breadcrumb);
 
 	// Add pid to form

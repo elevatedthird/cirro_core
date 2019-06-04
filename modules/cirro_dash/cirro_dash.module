@@ -25,7 +25,7 @@ function cirro_dash_permission() {
   );
 }
 
-//Implements hook_menu() to create the dashboard page. 
+//Implements hook_menu() to create the dashboard page.
 function cirro_dash_menu() {
 
 	// Init
@@ -60,7 +60,7 @@ function cirro_dash_user_login() {
   	(!isset($_POST['form_id']) ||
   	$_POST['form_id'] != 'user_pass_reset')
   ) {
-  
+
     $_GET['destination'] = $redirection;
 
   }
@@ -108,7 +108,7 @@ function cirro_dash_build() {
 
 	// Cache content from modules that hook into cirro_dash via hook_for_dash
 	$hook_data = module_invoke_all('for_dash');
-	
+
 	// Set Iterator
 	$i = 0;
 
@@ -121,12 +121,12 @@ function cirro_dash_build() {
 		$h_perms = $hook_data['permission'];
 
 		// Region may or may not be array
-		if ( is_array($h_region) ) { 
+		if ( is_array($h_region) ) {
 			$switch = $h_region[$i];
-			
+
 			// Add content to $hooked_markup
 			foreach ( $h_content as $data ) {
-				
+
 				// Check permission
 				if ( !user_access($h_perms[$i]) ) continue;
 
@@ -151,9 +151,9 @@ function cirro_dash_build() {
 			} // /foreach
 
 		} else {
-			
+
 			$switch = $h_region;
-			
+
 			// Determine where markup is going in dashboard
 			switch ( $switch ) {
 				case 'top':
@@ -188,16 +188,16 @@ function cirro_dash_build() {
 
 	// Load all entity info
 	$entity_info = entity_get_info();
-	
+
 	// Loop through all entities
 	foreach ( $entity_info as $mach_name => $info ) {
-		
+
 		// If the entity is a cirroCoreController and has a dashboard property
 		if (
 			$info['controller class'] === 'cirroCoreController' &&
 			isset($info['dashboard'])
 		) {
-			
+
 			// Add to the cirro entities array
 			$cirro_entities[$mach_name] = $info;
 
@@ -208,7 +208,7 @@ function cirro_dash_build() {
 /**
  * Check for user permissions
  */
-	
+
 	// Loop through the cirro entities to check for user permissions
 	foreach ( $cirro_entities as $mach_name => $info ) {
 
@@ -217,12 +217,12 @@ function cirro_dash_build() {
 
 			// If the entity has the 'add' property in its dashboard array
 			if ( in_array('add', $info['dashboard']) ) {
-	
+
 				// Append to the add content links
 				$label = $info['label'];
 				$link = l("<div class=\"action-btn\">+ $label</div>", "admin/dash/$mach_name/add", array('html' => TRUE));
 				$add_links[$label] = "$link";
-	
+
 			}
 
 		}
@@ -232,7 +232,7 @@ function cirro_dash_build() {
 
 			// If the entity has the 'primary' property in its dashboard array
 			if ( in_array('primary', $info['dashboard']) ) {
-	
+
 				// Don't show the edit buttons unless there is something to edit
 				if ( cirro_core_single_load(1, $mach_name) === FALSE ) {
 
@@ -242,7 +242,7 @@ function cirro_dash_build() {
 
 					entity_get_controller($mach_name)->create($item);
 				}
-	
+
 				// Append to the edit primary links
 				$label = $info['label'];
 				$text = "
@@ -253,10 +253,10 @@ function cirro_dash_build() {
 
 				$primary_links[$label] = l($text, "admin/dash/$mach_name/1/edit", array('html' => TRUE));
 			}
-	
+
 			// If the entity has the 'weight' property in its dashboard array
 			if ( in_array('weight', $info['dashboard']) ) {
-	
+
 				// Append to the reorder links
 				$label = $info['label'];
 				$link = l("Reorder $label", "admin/dash/weights/$mach_name", array('html' => TRUE));
@@ -264,17 +264,17 @@ function cirro_dash_build() {
 					<div class=\"reorder-links\">
 						<i class=\"icon-move\"></i> <strong>$link</strong>
 					</div>";
-	
+
 			}
-	
+
 			// If the entity has the 'table' property in its dashboard array
 			if ( in_array('table', $info['dashboard']) ) {
-	
+
 				// Add to types array to allow for sorting by types
-				$types[$mach_name] = $info;			
-				
+				$types[$mach_name] = $info;
+
 			}
-			
+
 		}
 
 	}
@@ -309,35 +309,29 @@ function cirro_dash_build() {
 
 	// Loop through types to build table items
 	foreach ( $types as $mach_name => $info ) {
-		
+
 		// Init
 		$label = $info['label'];
 		$table = $info['base table'];
-		
+
 		// Query specific data
-		$query_string = "
-			SELECT
-				i.id,
-				i.title,
-				u.name AS user,
-				i.created,
-				i.changed,
-				i.type,
-				i.type_label
-				FROM $table AS i
-				JOIN users AS u
-					ON i.uid = u.uid
-		";
-		
+		$query_string = '
+			SELECT i.id, i.title, i.created, i.changed, i.type, i.type_label,
+			  u.name AS user
+			FROM {:tablevar} AS i
+			JOIN {users} AS u
+			  ON i.uid = u.uid
+		';
+
 		// Query the database
-		$query = db_query($query_string);
-		
+		$query = db_query($query_string, array(':tablevar' => $table));
+
 		// Get results
 		$result = $query->fetchAll();
-		
+
 		// Add to items array
 		$items = array_merge($items, $result);
-		
+
 	}
 
 	// Build table rows
@@ -365,20 +359,20 @@ function cirro_dash_build() {
 				),
 			)
 		);
-		
+
 		// Check for 0 changed value
 		if ( $item->changed == 0 ) {
-			
+
 			// Replace changed with text
 			$updated = '<em>never</em>';
-			
+
 		} else {
-		
+
 			// Replace changed with formatted date
-			$updated = format_date($item->changed, 'short');	
-			
+			$updated = format_date($item->changed, 'short');
+
 		}
-		
+
 		// Create table row
 		$row = array(
 			'data'=> array(
@@ -395,7 +389,7 @@ function cirro_dash_build() {
 /**
  * Create the html for the dashboard
  */
-	
+
 	// Build link for editing account info
 	$user_link = l('Edit login info', "user/{$user->uid}/edit");
 	$edit_user = "
@@ -443,9 +437,9 @@ function cirro_dash_build() {
 		<div id=\"weights-wrapper\" class=\"span3 dash-section\">
 			<h2>REORDER ITEMS</h2>
 			$reorder_links
-		</div>";	
+		</div>";
 
-	
+
 	// Build existing table
 	$header = array('TITLE', 'TYPE', 'AUTHOR', 'UPDATED', 'DELETE');
 
@@ -458,13 +452,13 @@ function cirro_dash_build() {
 		'sticky' => '',
 		'empty' => 'No Content of this Type',
 	);
-	
-	$table = theme_table($table_vars); 
+
+	$table = theme_table($table_vars);
 	$table_wrapped = "
 	<div id=\"edit-existing-wrapper\" class=\"dash-section\">
 		$table
 	</div>";
-	
+
 	$html = "
 		$hooked_markup_top
 		$primary_html
@@ -492,7 +486,7 @@ function cirro_dash_build() {
  * Add functions that allow for user-controlled capabilities
  * Filter by type
  * Reorder content
- */ 
+ */
 
 /**
  * Admin Dash filter form. Allows user to filter types on their dashboard.
@@ -502,7 +496,7 @@ function cirro_dash_filter($form, $form_state, $types_info) {
 	// Init
 	$form = array();
 	$types = array();
-	
+
 	// Get default value
 	if ( isset($_SESSION['cirro_dash_type_filter']) ) {
 
@@ -536,17 +530,17 @@ function cirro_dash_filter($form, $form_state, $types_info) {
 		'#default_value' => $default,
 		'#options' => $types,
 	);
-	
+
 	$form['submit'] = array(
 		'#type' => 'submit',
 		'#value' => 'Filter',
 	);
-	
+
 	$form['reset'] = array(
 		'#type' => 'submit',
 		'#value' => 'Reset',
 	);
-	
+
 	return $form;
 }
 
@@ -557,23 +551,23 @@ function cirro_dash_filter_submit($form, &$form_state) {
 
 	// Switch on submit pressed
 	switch($form_state['values']['op']) {
-		
+
 		case 'Filter':
-		
+
 			if ( isset($form_state['values']['type']) ) {
-			
+
 				// Set filter to drop down value
 				$_SESSION['cirro_dash_type_filter'] = $form_state['values']['type'];
-				
+
 			}
-			
+
 			break;
 
 		case 'Reset':
 
 			// Reset filter to Show All
 			$_SESSION['cirro_dash_type_filter'] = '*';
-			
+
 			break;
 
 	}
@@ -595,10 +589,10 @@ function cirro_dash_weights_page($type) {
 
 	// Build form
 	$form = drupal_render(drupal_get_form('cirro_dash_weights_form', $type));
-	
+
 	// Add form to html
 	$html .= $form;
-	
+
 	return $html;
 }
 
@@ -621,7 +615,7 @@ function cirro_dash_weights_form($form, &$form_state, $type) {
 	$form = array();
 	$form['items'] = array();
 	$form['items']['#tree'] = TRUE;
-	
+
 	// Query nodes of the specified type ordered by the weight field
 	// and then name.
 	$query = new EntityFieldQuery;
@@ -633,7 +627,7 @@ function cirro_dash_weights_form($form, &$form_state, $type) {
 
 	// Check for results
 	if(isset($result['node'])) {
-	
+
 		// Build weight options
 		$weight_options = array();
 		for($i = -10; $i <= 10; $i++) {
@@ -642,16 +636,16 @@ function cirro_dash_weights_form($form, &$form_state, $type) {
 
 		// Load nodes
 		$nodes = entity_load('node', array_keys($result['node']));
-		
+
 		// Loop through nodes
 		foreach($nodes as $nid => $node) {
-		
+
 			// Init
 			$default_weight = 0;
-		
+
 			// Add node array to items
 			$form['items'][$nid] = array();
-			
+
 			// Build title markup element
 			$form['items'][$nid]['title'] = array(
 				'#markup' => $node->title,
@@ -677,8 +671,8 @@ function cirro_dash_weights_form($form, &$form_state, $type) {
 					'class' => array('weight-group'),
 				),
 			);
-			
-			
+
+
 			// Build hidden nid field
 			$form['items'][$nid]['nid'] = array(
 				'#type' => 'hidden',
@@ -692,7 +686,7 @@ function cirro_dash_weights_form($form, &$form_state, $type) {
 			'#value' => t('Save Order'),
 		);
 	}
-	
+
 	return $form;
 }
 
@@ -708,7 +702,7 @@ function cirro_dash_weights_form_submit($form, &$form_state) {
 		$node = node_load($item['nid']);
 		// Set new weight
 		$node->field_weight['und'][0]['value'] = $item['weight'];
-		
+
 		// Save
 		node_save($node);
 	}
@@ -732,19 +726,19 @@ function theme_cirro_dash_weights_form($variables) {
 	// Init
 	$output = '';
 	$form = $variables['form'];
-	
+
 	// Check for items before doing anything else
 	if(!isset($form['items'])) {
-	
+
 		// Return empty message
 		$output = 'No items were found of this type';
-		
+
 		return $output;
 	}
 
 	// Activate tabledrag capabilities
 	drupal_add_tabledrag('draggable-table', 'order', 'sibling', 'weight-group');
-	
+
 	// Tabls init
 	$headers = array('Name', 'Weight');
 	$rows = array();
@@ -754,24 +748,24 @@ function theme_cirro_dash_weights_form($variables) {
 
 	// Loop through items
 	foreach($items as $index) {
-	
+
 		// Init
 		$row = array();
-	
+
 		// Load indvidual item
 		$item = &$form['items'][$index];
 
 		//Build row
 		$row[] = drupal_render($item['title']);
 		$row[] = drupal_render($item['weight']);
-		
+
 		// Add to rows
 		$rows[] = array(
 			'data' => $row,
 			'class' => array('draggable'),
 		);
 	}
-	
+
 	// Put together table variables
 	$table_vars = array(
 		'header' => $headers,

@@ -18,7 +18,7 @@
  *   Full markup for multi_img forms or placeholders.
  */
 function cirro_core_multi_img_build_forms($item, $multi_imgs, $type, $id) {
-	
+
 	// Init
 	$html = '';
 
@@ -51,25 +51,25 @@ function cirro_core_multi_img_build_forms($item, $multi_imgs, $type, $id) {
 		foreach ( $multi_imgs as $field => $info ) {
 
 			// Query existing imgs
-			$query_string = "
+			$query_string = '
 				SELECT id, fid, weight, img_alt, img_title, data_fields
-					FROM cirro_multi_img
-					WHERE parent_id = :id
-					AND parent_type = :type
-					AND parent_field = :field
-					ORDER BY weight, created
-			";
-		
+				FROM {cirro_multi_img}
+				WHERE parent_id = :id
+				AND parent_type = :parent_type
+				AND parent_field = :field
+				ORDER BY weight, created
+			';
+
 			$placeholders = array(
 				':id' => $id,
-				':type' => $type,
+				':parent_type' => $type,
 				':field' => $field
 			);
-		
+
 			$query = db_query($query_string, $placeholders);
-		
+
 			$imgs = $query->fetchAll();
-			
+
 			// Count imgs
 			$img_count = count($imgs);
 
@@ -86,7 +86,7 @@ function cirro_core_multi_img_build_forms($item, $multi_imgs, $type, $id) {
 				"cirro_core_{$type}_{$field}_multi_img_weights", $img_weight_options);
 
 			if ( isset($info['limit']) && $img_count >= $info['limit'] ) {
-				
+
 				// Replace upload field with limit warning
 				$upload_form = "
 					<div class=\"alert alert-info\">
@@ -94,7 +94,7 @@ function cirro_core_multi_img_build_forms($item, $multi_imgs, $type, $id) {
 						Delete some images in order to add more.
 					</div>
 				";
-				
+
 			} else {
 
 				// Upload form options
@@ -110,10 +110,10 @@ function cirro_core_multi_img_build_forms($item, $multi_imgs, $type, $id) {
 					"cirro_core_{$type}_{$field}_multi_img_upload",
 					$upload_form_options
 				);
-				
+
 				// Render upload form
 				$upload_form = drupal_render($upload_form_array);
-				
+
 			}
 
 			// Render forms
@@ -142,9 +142,9 @@ function cirro_core_multi_img_build_forms($item, $multi_imgs, $type, $id) {
 		}
 
 	}
-	
+
 	return $html;
-	
+
 }
 
 /**
@@ -207,10 +207,10 @@ function cirro_core_multi_img_weight_form($form, &$form_state, $options) {
 
 			// Delete multi_img
 			entity_get_controller('multi_img')->delete($img->id);
-			
+
 			// Continue on in loop
 			continue;
-			
+
 		}
 
 		// Load file object
@@ -334,17 +334,17 @@ function cirro_core_multi_img_weight_form($form, &$form_state, $options) {
 	}
 
 	if ( !empty($imgs) ) {
-	
+
 		// Add submit
 		$form['submit'] = array(
 			'#type' => 'submit',
 			'#value' => 'Update Images',
 		);
-		
+
 	}
-	
+
 	return $form;
-	
+
 }
 
 /**
@@ -393,60 +393,60 @@ function cirro_core_multi_img_upload_form($form, &$form_state, $options) {
 	$field = $options['parent_field'];
 	$info = $options['parent_field_info'];
 	$upload_desc = '';
-	
+
 	// Check for size limit option
 	if ( isset($info['file_size']) ) {
-		
+
 		$size = $info['file_size'];
-		
+
 		// Add file size validation to validators
 		$validators['file_validate_size'] = array($size);
-		
+
 		// Format size
 		$formatted_size = cirro_core_file_format_bytes($size);
-		
+
 		// Add to description
 		$upload_desc .= "Size limit: <strong>$formatted_size</strong><br />";
 
 	} else {
-		
+
 		// Add default
-		
+
 		$size = 1048576;
-		
+
 		// Add file size validation to validators
 		$validators['file_validate_size'] = array($size);
-		
+
 		// Format size
 		$formatted_size = cirro_core_file_format_bytes($size);
-		
+
 		// Add to description
 		$upload_desc .= "Size limit: <strong>$formatted_size</strong><br />";
-		
-		
+
+
 	}
 
 	// Check for extensions limitation
 	if ( isset($info['extensions']) ) {
-		
+
 		$extensions = $info['extensions'];
-		
+
 		// Add file extenstion validation to validators
 		$validators['file_validate_extensions'] = array($extensions);
-		
+
 		// Add to description
 		$upload_desc .= "Allowed extensions: <strong>$extensions</strong><br />";
-		
+
 	} else {
-		
+
 		$extensions = 'jpg jpeg gif png';
-		
+
 		// Add file extenstion validation to validators
 		$validators['file_validate_extensions'] = array($extensions);
-		
+
 		// Add to description
-		$upload_desc .= "Allowed extensions: <strong>$extensions</strong><br />";		
-		
+		$upload_desc .= "Allowed extensions: <strong>$extensions</strong><br />";
+
 	}
 
 
@@ -467,7 +467,7 @@ function cirro_core_multi_img_upload_form($form, &$form_state, $options) {
 		'#type' => 'hidden',
 		'#value' => $field,
 	);
-	
+
 	// Weight
 	$form['weight'] = array(
 		'#type' => 'hidden',
@@ -479,21 +479,21 @@ function cirro_core_multi_img_upload_form($form, &$form_state, $options) {
 		'#type' => 'managed_file',
 		'#upload_location' => "public://multi_imgs/$type/$field",
 	);
-	
+
 	// Check for validators
 	if ( !empty($validators) ) {
-		
+
 		// Add validatros to upload field
 		$form['fid']['#upload_validators'] = $validators;
-		
+
 	}
-	
-	// Check for description 
+
+	// Check for description
 	if ( !empty($upload_desc) ) {
-		
+
 		// Add description to upload field
 		$form['fid']['#description'] = $upload_desc;
-		
+
 	}
 
 
@@ -538,40 +538,40 @@ function cirro_core_multi_img_upload_form_submit($form, &$form_state) {
  *   Themeing variables array
  */
 function theme_cirro_core_multi_img_weight_form($variables) {
-	
+
 	// Init
 	$output = '';
 	$rows = array();
-	
+
 	// Load form array
 	$form = $variables['form'];
-	
+
 	// Activate tabledrag shiz
 	drupal_add_tabledrag('draggable-table', 'order', 'sibling', 'weight-group');
-	
+
 	// Loop through form Elements
 	foreach ( element_children($form['imgs']) as $key ) {
-		
+
 		// Init
 		$element = array();
 		$data = '';
 		$row = array();
-		
+
 		// Skip none numeric keys
 		if ( !is_numeric($key) ) continue;
-		
+
 		// Load element
 		$element = &$form['imgs'][$key];
-		
+
 		// Add class to weight field
 		$element['weight']['#attributes']['class'] = array('weight-group');
-		
+
 		// Put data fields together
 		$data .= drupal_render($element['id']);
 		$data .= drupal_render($element['img_title']);
 		$data .= drupal_render($element['img_alt']);
 		$data .= drupal_render($element['data_fields']);
-		
+
 		// Wrap data fields for acc
 		$data_wrapped = "
 			<div class=\"multi-tool-data-col\">
@@ -596,12 +596,12 @@ function theme_cirro_core_multi_img_weight_form($variables) {
 		$row[] = $data_wrapped;
 		$row[] = drupal_render($element['weight']);
 		$row[] = drupal_render($element['delete_link']);
-		
+
 		// Add to rows
 		$rows[] = array( 'data' => $row, 'class' => array('draggable'));
 
 	}
-	
+
 	// Define headers
 	$headers = array(
 		'File',
@@ -627,13 +627,13 @@ function theme_cirro_core_multi_img_weight_form($variables) {
 		'sticky' => FALSE,
 		'empty' => 'No Images found',
 	);
-	
+
 	// Add table to output
 	$output = theme_table($table_vars);
-	
+
 	// Render remaining form elements
-	$output .= drupal_render_children($form);	
-	
+	$output .= drupal_render_children($form);
+
 	return $output;
 
 }
@@ -642,42 +642,42 @@ function theme_cirro_core_multi_img_weight_form($variables) {
  * Multi-image load helper function
  */
 function cirro_core_multi_img_loader($type, $id, $field){
- 
+
  // Init stuff here
  $imgs = array();
- 
-	
+
+
 	// Query items
-	$img_query_string = "
+	$img_query_string = '
 	SELECT m.img_alt, m.img_title, m.data_fields, f.uri, f.fid 
-  	FROM cirro_multi_img AS m
-  	JOIN file_managed AS f
-  		ON m.fid = f.fid
-  	WHERE parent_id = :id
-  	AND parent_type = :type
-  	AND parent_field = :field
-  	ORDER BY m.weight
-	";
-	
+  FROM {cirro_multi_img} AS m
+  JOIN {file_managed} AS f
+    ON m.fid = f.fid
+  WHERE parent_id = :id
+  AND parent_type = :parent_type
+  AND parent_field = :field
+  ORDER BY m.weight
+	';
+
 	$placeholders = array(
 		':id' => $id,
-		':type' => $type,
+		':parent_type' => $type,
 		':field' => $field,
 	);
-	
+
 		$img_query = db_query($img_query_string, $placeholders);
 		$img_results = $img_query->fetchAll();
- 
+
  // If images return url, title, alt
  foreach ( $img_results as $img_result ) {
-	 
+
 	 $img_result->url = file_create_url($img_result->uri);
 
 	 $img_result->data_fields = unserialize($img_result->data_fields);
-	 
+
 	 $imgs[] = $img_result;
 
  }
 
- return $imgs;	 
+ return $imgs;
 }

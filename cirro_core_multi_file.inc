@@ -21,16 +21,16 @@
  *   Full markup for multi_file forms or placeholders.
  */
 function cirro_core_multi_file_build_forms($item, $multi_file_fields, $type, $id) {
-	
+
 	// Init
 	$html = '';
 
 	// Check for add item
 	if ( $item === 'add' )  {
-		
+
 		// Loop through fields
 		foreach ( $multi_file_fields as $field_name => $info ) {
-		
+
 			// Build placeholder
 			$placeholder = "
 				<div class=\"multi-form-wrapper\">
@@ -41,41 +41,41 @@ function cirro_core_multi_file_build_forms($item, $multi_file_fields, $type, $id
 						<h4>Finish creating item in order to add images</h4>
 					</div>
 				</div>
-			";	
+			";
 
 			// Add placeholder to html
 			$html .= $placeholder;
-			
+
 		}
 
 	} else {
 
 		// Loop through fields
 		foreach ( $multi_file_fields as $field_name => $info ) {
-			
+
 			// Query existing file items
-			$query_string = "
+			$query_string = '
 				SELECT id, title, fid, weight, data_fields
-					FROM cirro_multi_file
-					WHERE parent_id = :parent_id
-					AND parent_type = :parent_type
-					AND parent_field = :parent_field
-					ORDER BY weight, created
-			";
-			
+				FROM {cirro_multi_file}
+				WHERE parent_id = :parent_id
+				AND parent_type = :parent_type
+				AND parent_field = :parent_field
+				ORDER BY weight, created
+			';
+
 			$args = array(
 				':parent_type' => $type,
 				':parent_id' => $id,
 				':parent_field' => $field_name,
 			);
-		
+
 			$query = db_query($query_string, $args);
-			
+
 			$files = $query->fetchAll();
-			
+
 			// Count files
 			$files_count = count($files);
-			
+
 			// Build form options
 			$file_weight_form_options = array(
 				'parent_type' => $type,
@@ -83,19 +83,19 @@ function cirro_core_multi_file_build_forms($item, $multi_file_fields, $type, $id
 				'parent_field' => $field_name,
 				'files' => $files,
 			);
-			
+
 			// Build weights form
 			$file_weights_form_array = drupal_get_form(
 				"cirro_core_{$type}_{$field_name}_multi_file_weights",
 				$file_weight_form_options
 			);
-			
+
 			// Render weight form
 			$file_weights_form = drupal_render($file_weights_form_array);
-			
+
 			// Check for limit
 			if ( isset($info['limit']) && $files_count >= $info['limit'] ) {
-				
+
 				// Upload placholder
 				$upload_form = "
 					<div class=\"alert alert-info\">
@@ -103,9 +103,9 @@ function cirro_core_multi_file_build_forms($item, $multi_file_fields, $type, $id
 						Delete some files in order to add more.
 					</div>
 				";
-				
+
 			} else {
-				
+
 				// Upload options array
 				$upload_form_options = array(
 					'parent_type' => $type,
@@ -122,10 +122,10 @@ function cirro_core_multi_file_build_forms($item, $multi_file_fields, $type, $id
 					"cirro_core_{$type}_{$field_name}_multi_file_upload",
 					$upload_form_options
 				);
-				
+
 				// Render upload form
 				$upload_form = drupal_render($upload_form_array);
-				
+
 				// Build field html
 				$field_forms = "
 					<div class=\"multi-form-wrapper box-border\">
@@ -142,16 +142,16 @@ function cirro_core_multi_file_build_forms($item, $multi_file_fields, $type, $id
 						</div>
 					</div>				
 				";
-				
+
 				// Add field to html
 				$html .= $field_forms;
-				
+
 			}
 
 		}
-		
+
 	}
-	
+
 	return $html;
 
 }
@@ -216,10 +216,10 @@ function cirro_core_multi_file_weight_form($form, &$form_state, $options) {
 
 			// Delete multi_file
 			entity_get_controller('multi_file')->delete($file->id);
-			
+
 			// Continue on in loop
 			continue;
-			
+
 		}
 
 		// Load file object
@@ -326,17 +326,17 @@ function cirro_core_multi_file_weight_form($form, &$form_state, $options) {
 	}
 
 	if ( !empty($files) ) {
-	
+
 		// Add submit
 		$form['submit'] = array(
 			'#type' => 'submit',
 			'#value' => 'Update Files',
 		);
-		
+
 	}
-	
+
 	return $form;
-	
+
 }
 
 /**
@@ -385,18 +385,18 @@ function cirro_core_multi_file_upload_form($form, &$form_state, $options) {
 	$field = $options['parent_field'];
 	$info = $options['parent_field_info'];
 	$upload_desc = '';
-	
+
 	// Check for size limit option
 	if ( isset($info['file_size']) ) {
-		
+
 		$size = $info['file_size'];
-		
+
 		// Add file size validation to validators
 		$validators['file_validate_size'] = array($size);
-		
+
 		// Format size
 		$formatted_size = cirro_core_file_format_bytes($size);
-		
+
 		// Add to description
 		$upload_desc .= "Size limit: <strong>$formatted_size</strong><br />";
 
@@ -404,15 +404,15 @@ function cirro_core_multi_file_upload_form($form, &$form_state, $options) {
 
 	// Check for extensions limitation
 	if ( isset($info['extensions']) ) {
-		
+
 		$extensions = $info['extensions'];
-		
+
 		// Add file extenstion validation to validators
 		$validators['file_validate_extensions'] = array($extensions);
-		
+
 		// Add to description
 		$upload_desc .= "Allowed extensions: <strong>$extensions</strong><br />";
-		
+
 	}
 
 	// Parent id
@@ -432,7 +432,7 @@ function cirro_core_multi_file_upload_form($form, &$form_state, $options) {
 		'#type' => 'hidden',
 		'#value' => $field,
 	);
-	
+
 	// Weight
 	$form['weight'] = array(
 		'#type' => 'hidden',
@@ -454,18 +454,18 @@ function cirro_core_multi_file_upload_form($form, &$form_state, $options) {
 
 	// Check for validators
 	if ( !empty($validators) ) {
-		
+
 		// Add validatros to upload field
 		$form['fid']['#upload_validators'] = $validators;
-		
+
 	}
-	
-	// Check for description 
+
+	// Check for description
 	if ( !empty($upload_desc) ) {
-		
+
 		// Add description to upload field
 		$form['fid']['#description'] = $upload_desc;
-		
+
 	}
 
 	// Submit
@@ -510,38 +510,38 @@ function cirro_core_multi_file_upload_form_submit($form, &$form_state) {
  *   Themeing variables array
  */
 function theme_cirro_core_multi_file_weight_form($variables) {
-	
+
 	// Init
 	$output = '';
 	$rows = array();
-	
+
 	// Load form array
 	$form = $variables['form'];
-	
+
 	// Activate tabledrag shiz
 	drupal_add_tabledrag('draggable-table', 'order', 'sibling', 'weight-group');
-	
+
 	// Loop through form Elements
 	foreach ( element_children($form['files']) as $key ) {
-		
+
 		// Init
 		$element = array();
 		$data = '';
 		$row = array();
-		
+
 		// Skip none numeric keys
 		if ( !is_numeric($key) ) continue;
-		
+
 		// Load element
 		$element = &$form['files'][$key];
-		
+
 		// Add class to weight field
 		$element['weight']['#attributes']['class'] = array('weight-group');
-		
+
 		// Put data fields together
 		$data .= drupal_render($element['id']);
 		$data .= drupal_render($element['title']);
-		
+
 		// Check for data fields
 		if ( isset($element['data_fields']) ) {
 
@@ -563,7 +563,7 @@ function theme_cirro_core_multi_file_weight_form($variables) {
 			$data .= $data_fields_wrapped;
 
 		}
-		
+
 		$data_wrapped = "
 			<div class=\"multi-tool-data-col\">
 				$data
@@ -581,12 +581,12 @@ function theme_cirro_core_multi_file_weight_form($variables) {
 		$row[] = $data_wrapped;
 		$row[] = drupal_render($element['weight']);
 		$row[] = drupal_render($element['delete_link']);
-		
+
 		// Add to rows
 		$rows[] = array( 'data' => $row, 'class' => array('draggable'));
 
 	}
-	
+
 	// Define headers
 	$headers = array(
 		'File',
@@ -612,13 +612,13 @@ function theme_cirro_core_multi_file_weight_form($variables) {
 		'sticky' => FALSE,
 		'empty' => 'No Files found',
 	);
-	
+
 	// Add table to output
 	$output = theme_table($table_vars);
-	
+
 	// Render remaining form elements
-	$output .= drupal_render_children($form);	
-	
+	$output .= drupal_render_children($form);
+
 	return $output;
 
 }
@@ -632,38 +632,38 @@ function theme_cirro_core_multi_file_weight_form($variables) {
  *   Array of multi_file item objects with pre-built URL.
  */
 function cirro_core_multi_file_loader($type, $id, $field){
- 
+
  // Init stuff here
  $files = array();
- 
-	
+
+
 	// Query items
-	$file_query_string = "
-	SELECT i.title, i.data_fields, f.uri, f.fid 
-  	FROM cirro_multi_file AS i
-  	JOIN file_managed AS f
-  		ON i.fid = f.fid
-  	WHERE i.parent_id = :id
-  	AND i.parent_type = :type
-  	AND i.parent_field = :field
-  	ORDER BY i.weight
-	";
-	
+	$file_query_string = '
+	  SELECT i.title, i.data_fields, f.uri, f.fid 
+    FROM {cirro_multi_file} AS i
+    JOIN {file_managed} AS f
+      ON i.fid = f.fid
+    WHERE i.parent_id = :id
+    AND i.parent_type = :parent_type
+    AND i.parent_field = :field
+    ORDER BY i.weight
+	';
+
 	$placeholders = array(
 		':id' => $id,
-		':type' => $type,
+		':parent_type' => $type,
 		':field' => $field,
 	);
-	
+
 	$file_query = db_query($file_query_string, $placeholders);
 	$file_results = $file_query->fetchAll();
- 
+
  // If images return url, title, alt
  foreach ( $file_results as $file_result ) {
-	 
+
 	 // Build file
 	 $file_result->url = file_create_url($file_result->uri);
-	 
+
 	 // Build data fields
 	 $file_result->data_fields = unserialize($file_result->data_fields);
 
@@ -671,5 +671,5 @@ function cirro_core_multi_file_loader($type, $id, $field){
 
  }
 
- return $files;	 
-} 
+ return $files;
+}
